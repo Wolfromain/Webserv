@@ -1,4 +1,4 @@
-NAME = PmergeMe
+NAME = webserv
 
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -g3 -std=c++98 -I $(INCLUDE_DIR)
