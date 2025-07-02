@@ -10,6 +10,8 @@
 
 # include "Request.hpp"
 
+# define PORT 8080
+
 class Server
 {
 	private:
@@ -25,6 +27,7 @@ class Server
 
 		void start();
 		void stop();
+		bool isRunning() const;
 };
 
 #endif

@@ -7,16 +7,15 @@ INCLUDE_DIR = include/
 SRC_DIR = src/
 OBJ_DIR = obj
 
-SRC_FILES = \
-	\
-	main.cpp
+SRC_FILES = main.cpp Server.cpp
+
+
 SRC = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 
 MANDATORY_SRCS = $(SRC)
 
 PMANDATORY =  $(addprefix , $(MANDATORY_SRCS))
 OBJS = $(PMANDATORY:$(SRC_DIR)%.cpp=$(OBJ_DIR)/%.o)
-
 
 all: $(NAME)
 

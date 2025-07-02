@@ -1,6 +1,4 @@
-#include <Server.hpp>
-
-#define PORT 8080
+#include "Server.hpp"
 
 Server::Server()
 {
@@ -24,7 +22,7 @@ void Server::start()
 	}
 
 	_address.sin_family = AF_INET;
-	_address.sin_port = htons(8080);
+	_address.sin_port = htons(PORT);
 	_address.sin_addr.s_addr = INADDR_ANY;
 
 	if (bind(_server_fd, (struct sockaddr*)&_address, sizeof(_address)) == -1)
@@ -42,7 +40,8 @@ void Server::start()
 	std::cout << "Server started on port " << _port << std::endl;
 	while (is_running)
 	{
-		int client_fd = accept(_server_fd, nullptr, nullptr);
+		socklen_t addrlen = sizeof(_address);
+		int client_fd = accept(_server_fd, (struct sockaddr*)&_address, &addrlen);
 		if (client_fd == -1)
 		{
 			std::cerr << "Failed to accept connection" << std::endl;
@@ -67,12 +66,19 @@ void Server::start()
 	stop();
 }
 
+bool Server::isRunning() const
+{
+	if (_server_fd != -1)
+		return true;
+	return false;
+}
+
 void Server::stop()
 {
 	if (_server_fd != -1)
 	{
 		close(_server_fd);
-		_server_fd == -1;
+		_server_fd = -1;
 		std::cout << "Server closed" << std::endl;
 	}
 	else
