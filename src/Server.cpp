@@ -12,7 +12,7 @@ Server::~Server()
 
 void Server::start()
 {
-	bool is_running = false;
+	bool is_running = false; //GLOBAL
 	int is_read = 0;
 	_server_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_server_fd == -1)
@@ -71,6 +71,11 @@ bool Server::isRunning() const
 	if (_server_fd != -1)
 		return true;
 	return false;
+}
+
+int Server::getServerFd() const
+{
+	return (_server_fd);
 }
 
 void Server::stop()

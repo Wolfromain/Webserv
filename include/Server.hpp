@@ -28,6 +28,7 @@ class Server
 		void start();
 		void stop();
 		bool isRunning() const;
+		int getServerFd() const;
 };
 
 #endif
