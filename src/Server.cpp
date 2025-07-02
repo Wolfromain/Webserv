@@ -14,18 +14,69 @@ Server::~Server()
 
 void Server::start()
 {
-	int is_Result = 0;
+	bool is_running = false;
+	int is_read = 0;
 	_server_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (_server_fd == 0)
-		//ERROR
+	if (_server_fd == -1)
+	{
+		std::cerr << "Failed to create socket" << std::endl;
+		return;
+	}
+
 	_address.sin_family = AF_INET;
 	_address.sin_port = htons(8080);
 	_address.sin_addr.s_addr = INADDR_ANY;
 
-	bind(_server_fd, (struct sockaddr*)&_address, sizeof(_address));
-	listen(_server_fd, SOMAXCONN);
+	if (bind(_server_fd, (struct sockaddr*)&_address, sizeof(_address)) == -1)
+	{
+		std::cerr << "Failed to bind socket" << std::endl;
+		return;
+	}
+
+	if (listen(_server_fd, SOMAXCONN) == -1)
+	{
+		std::cerr << "Failed to listen on socket" << std::endl;
+		return;
+	}
+	is_running = true;
+	std::cout << "Server started on port " << _port << std::endl;
+	while (is_running)
+	{
+		int client_fd = accept(_server_fd, nullptr, nullptr);
+		if (client_fd == -1)
+		{
+			std::cerr << "Failed to accept connection" << std::endl;
+			break;
+		}
+
+		char buffer[30720] = {0};
+		is_read = read(client_fd, buffer, sizeof(buffer));
+		if (is_read < 0)
+		{
+			std::cerr << "Failed to read from socket" << std::endl;
+			close(client_fd);
+			break;
+		}
+
+		std::cout << "Received: " << buffer << std::endl;
+
+		const char* response = "TEST";
+		send(client_fd, response, strlen(response), 0);
+		close(client_fd);
+	}
+	stop();
 }
 
 void Server::stop()
 {
+	if (_server_fd != -1)
+	{
+		close(_server_fd);
+		_server_fd == -1;
+		std::cout << "Server closed" << std::endl;
+	}
+	else
+	{
+		std::cout << "Server not running" << std::endl;
+	}
 }
