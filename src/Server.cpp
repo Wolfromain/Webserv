@@ -21,6 +21,9 @@ void Server::start()
 		return;
 	}
 
+	int opt = 1;
+	setsockopt(_server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
 	_address.sin_family = AF_INET;
 	_address.sin_port = htons(PORT);
 	_address.sin_addr.s_addr = INADDR_ANY;
