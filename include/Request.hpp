@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <cstdlib>
 #include <map>
 
 class Request
@@ -22,6 +23,7 @@ class Request
 		void	parse(const std::string &raw_request);
 		void	methodParse(const std::string &line);
 		void	headersParse(const std::string &line);
+		void	printAllToTest();
 };
 
 #endif

@@ -12,6 +12,8 @@
 
 # define PORT 8080
 
+class Request;
+
 class Server
 {
 	private:

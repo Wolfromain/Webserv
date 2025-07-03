@@ -62,7 +62,9 @@ void Server::start()
 
 		std::cout << "Received: " << buffer << std::endl;
 		Request	request;
+		std::cout << "AVANT TEST" << std::endl;
 		request.parse(buffer);
+		request.printAllToTest();
 
 		const char* response = "TEST";
 		send(client_fd, response, strlen(response), 0);
