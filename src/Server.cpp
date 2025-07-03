@@ -61,6 +61,8 @@ void Server::start()
 		}
 
 		std::cout << "Received: " << buffer << std::endl;
+		Request	request;
+		request.parse(buffer);
 
 		const char* response = "TEST";
 		send(client_fd, response, strlen(response), 0);
