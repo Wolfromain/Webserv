@@ -16,10 +16,12 @@ class CGI
 	private:
 
 	
+	
 	public:
 
 		CGI();
 		~CGI();
+
 
 };
 

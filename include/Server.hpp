@@ -27,6 +27,8 @@ class Server
 
 		Server();
 		~Server();
+		int listen_port;
+		std::string server_name;
 
 		void start();
 		void stop();
