@@ -10,15 +10,33 @@ Reponse::~Reponse()
 
 }
 
-std::string	Reponse::handleRequest(const Request &req)
+std::string	readFile(const std::string &path)
 {
-	if (req.getMethod() == "GET") 
+	std::ifstream file(path.c_str());
+	if (!file.is_open())
+		return "";
+	std::stringstream buffer;
+	buffer << file.rdbuf();
+	return (buffer.str());
+}
+
+void	Reponse::handleGET(const Request &req)
+{
+	if (req.getPath() == "/") 
 	{
-		if (req.getPath() == "/") 
+		_statusCode = 200;
+		_statusComment = "OK";
+		_body = "<html><h1>Bienvenue</h1></html>"; //page d'acueil a setup
+		_headers["Content-Type"] = "text/html";
+	}
+	else
+	{
+		std::string buffer = readFile("www" + req.getPath());
+		if (!buffer.empty())
 		{
 			_statusCode = 200;
 			_statusComment = "OK";
-			_body = "<html><h1>Bienvenue</h1></html>"; //page d'acueil a setup
+			_body = buffer;
 			_headers["Content-Type"] = "text/html";
 		}
 		else
@@ -29,13 +47,32 @@ std::string	Reponse::handleRequest(const Request &req)
 			_headers["Content-Type"] = "text/html";
 		}
 	}
-	else
-	{
+}
+
+void	Reponse::handlePOST(const Request &req)
+{
+		
+}
+
+void	Reponse::handleDELETE(const Request &req)
+{
+
+}
+
+void	Reponse::handleNoMethod(const Request &req)
+{
 		_statusCode = 405;
 		_statusComment = "Method Not Allowed";
 		_body = "Unsuported Method";
 		_headers["Content-Type"] = "text/plain";
-	}
+}
+
+std::string	Reponse::handleRequest(const Request &req)
+{
+	if (req.getMethod() == "GET") 
+		this->handleGET(req);
+	else
+		this->handleNoMethod(req);
 	std::ostringstream oss;
 	oss << _body.size();
 	_headers["Content-Length"] = oss.str();
@@ -48,5 +85,5 @@ std::string	Reponse::handleRequest(const Request &req)
 	rep += "\r\n";
 	rep += _body;
 
-	 return (rep);
+	return (rep);
 }

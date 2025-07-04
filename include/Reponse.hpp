@@ -21,7 +21,13 @@ class Reponse
 		Reponse();
 		~Reponse();
 		std::string	handleRequest(const Request &req);
+		void		handleGET(const Request &req);
+		void		handlePOST(const Request &req);
+		void		handleDELETE(const Request &req);
+		void		handleNoMethod(const Request &req);
 
 };
+
+std::string	readFile(const std::string &path);
 
 #endif
