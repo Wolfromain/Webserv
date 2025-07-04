@@ -66,8 +66,9 @@ void Server::start()
 		request.parse(buffer);
 		request.printAllToTest();
 
-		const char* response = "TEST";
-		send(client_fd, response, strlen(response), 0);
+		Reponse rep;
+		std::string reponse = rep.handleRequest(request);
+		send(client_fd, reponse.c_str(), reponse.size(), 0);
 		close(client_fd);
 	}
 	stop();

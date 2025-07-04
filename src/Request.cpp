@@ -10,6 +10,37 @@ Request::~Request()
 
 }
 
+
+std::string	Request::getMethod() const
+{
+	return (_method);
+
+}
+
+std::string	Request::getPath() const
+{
+	return (_path);
+
+}
+
+std::string	Request::getVersion() const
+{
+	return (_version);
+
+}
+
+std::string	Request::getQuerry_string() const
+{
+	return (_querry_string);
+
+}
+
+std::string	Request::getBody() const
+{
+	return (_body);
+
+}
+
 void	Request::methodParse(const std::string &line)
 {
 	std::istringstream iss(line);
@@ -76,4 +107,9 @@ void	Request::printAllToTest()
 	std::cout << "Version :" << _version << std::endl;
 	std::cout << "Quesrry string :" << _querry_string << std::endl;
 	std::cout << "Body :" << _body << std::endl;
+	std::cout << "Headers :" << std::endl;
+	for (std::map<std::string, std::string>::const_iterator it = _headers.begin(); it != _headers.end(); ++it)
+	{
+		std::cout << it->first << ": " << it->second << std::endl;
+	}
 }
