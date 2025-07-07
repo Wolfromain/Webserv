@@ -41,11 +41,43 @@ int Config::parseServerBlock(std::ifstream &file)
 		if (line.empty() || line[0] == '#')
 			continue;
 
-		
 		if (line.find("listen") != std::string::npos)
 			server.listen_port = atoi(line.substr(line.find("listen") + 6).c_str());
-		if (line.find("server_name") != std::string::npos)
+		else if (line.find("server_name") != std::string::npos)
 			server.server_name = line.substr(line.find("server_name") + 12);
+		else if (line.find("root") != std::string::npos)
+			server.root = line.substr(line.find("root") + 5);
+		else if (line.find("error_page") != std::string::npos)
+		{
+			std::istringstream iss(line);
+			std::string code, path, token;
+			iss >> token;
+			while (iss >> code)
+			{
+				if (code[0] == '/')
+					path = code;
+				else
+					server.error_pages[atoi(code.c_str())] = "";
+			}
+			if (!path.empty())
+				for (std::map<int, std::string>::iterator it = server.error_pages.begin(); it != server.error_pages.end(); ++it)
+					if (it->second.empty())
+						it->second = path;
+		}
+		else if (line.find("max_body_size") != std::string::npos)
+		{
+			std::string value = line.substr(line.find("max_body_size") + 13);
+			size_t res = 1;
+			if (value.find("M") != std::string::npos)
+				res = 1024 * 1024;
+			else if (value.find("K") != std::string::npos)
+				res = 1024;
+			server.max_body_size = atoi(value.c_str()) * res;
+		}
+		else if (line.find("location") != std::string::npos)
+		{
+			// Server::Location locations;
+		}
 	}
 	_servers.push_back(server);
 	return 0;

@@ -3,6 +3,7 @@
 
 # include <iostream>
 # include <string>
+# include <vector>
 # include <cstring>
 # include <unistd.h>
 # include <netinet/in.h>
@@ -14,6 +15,15 @@
 # define PORT 8080
 
 class Request;
+
+struct Location
+{
+	std::string path;
+	std::string root;
+	std::string index;
+	std::vector<std::string> allow_method;
+	bool autoindex;
+};
 
 class Server
 {
@@ -29,6 +39,10 @@ class Server
 		~Server();
 		int listen_port;
 		std::string server_name;
+		std::string root;
+		std::map<int, std::string> error_pages;
+		std::vector<Location> locations;
+		size_t max_body_size;
 
 		void start();
 		void stop();
