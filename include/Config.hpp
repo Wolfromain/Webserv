@@ -10,6 +10,8 @@
 
 # include "Server.hpp"
 
+class Server;
+
 class Config
 {
 	private:
@@ -23,7 +25,7 @@ class Config
 
 		int parseConfigFile(const std::string &filename);
 		int parseServerBlock(std::ifstream &file);
-		std::vector<Server> getServers() const;
+		void parseLocationBlock(std::ifstream &file, Server &server, const std::string &firstLine);
 };
 
 #endif

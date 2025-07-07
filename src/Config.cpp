@@ -30,6 +30,38 @@ int Config::parseConfigFile(const std::string &filename)
 	return (0);
 }
 
+void Config::parseLocationBlock(std::ifstream &file, Server &server, const std::string &firstLine)
+{
+	Server::Location locations;
+	std::istringstream iss(firstLine);
+	std::string tmp;
+	iss >> tmp >> locations.path;
+
+	std::string line;
+	while (std::getline(file, line))
+	{
+		if (line.find('}') != std::string::npos)
+			break;
+		if (line.empty() || line[0] == '#')
+			continue;
+		
+		if (line.find("root") != std::string::npos)
+			locations.root = line.substr(line.find("root") + 5);
+		else if (line.find("index") != std::string::npos)
+			locations.index = line.substr(line.find("index") + 6);
+		else if (line.find("allow_methods") != std::string::npos)
+		{
+			std::istringstream iss2(line);
+			std::string method;
+			while (iss2 >> method)
+				locations.allow_methods.push_back(method);
+		}
+		else if (line.find("autoindex") != std::string::npos)
+			locations.autoindex = (line.find("on") != std::string::npos);
+	}
+	server.locations.push_back(locations);
+}
+
 int Config::parseServerBlock(std::ifstream &file)
 {
 	Server server;
@@ -75,34 +107,7 @@ int Config::parseServerBlock(std::ifstream &file)
 			server.max_body_size = atoi(value.c_str()) * res;
 		}
 		else if (line.find("location") != std::string::npos)
-		{
-			Server::Location locations;
-			std::istringstream iss(line);
-			std::string tmp;
-			iss >> tmp >> locations.path;
-			while (std::getline(file, line))
-			{
-				if (line.find('}') != std::string::npos)
-					break;
-				if (line.empty() || line[0] == '#')
-					continue;
-				
-				if (line.find("root") != std::string::npos)
-					locations.root = line.substr(line.find("root") + 5);
-				else if (line.find("index") != std::string::npos)
-					locations.index = line.substr(line.find("index") + 6);
-				else if (line.find("allow_methods") != std::string::npos)
-				{
-					std::istringstream iss2(line);
-					std::string method;
-					while (iss2 >> method)
-						locations.allow_methods.push_back(method);
-				}
-				else if (line.find("autoindex") != std::string::npos)
-					locations.autoindex = (line.find("on") != std::string::npos);
-			}
-			server.locations.push_back(locations);
-		}
+			parseLocationBlock(file, server, line);
 	}
 	_servers.push_back(server);
 	return (0);
