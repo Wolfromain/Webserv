@@ -16,15 +16,6 @@
 
 class Request;
 
-struct Location
-{
-	std::string path;
-	std::string root;
-	std::string index;
-	std::vector<std::string> allow_method;
-	bool autoindex;
-};
-
 class Server
 {
 	private:
@@ -34,6 +25,15 @@ class Server
 	struct sockaddr_in _address;
 
 	public:
+
+		struct Location
+		{
+			std::string path;
+			std::string root;
+			std::string index;
+			std::vector<std::string> allow_methods;
+			bool autoindex;
+		};
 
 		Server();
 		~Server();
