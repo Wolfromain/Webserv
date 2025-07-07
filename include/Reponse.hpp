@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <map>
 #include "Request.hpp"
+#include "utils.hpp"
 
 class Request;
 
@@ -24,10 +25,8 @@ class Reponse
 		void		handleGET(const Request &req);
 		void		handlePOST(const Request &req);
 		void		handleDELETE(const Request &req);
-		void		handleNoMethod(const Request &req);
+		void		handleNoMethod();
 
 };
-
-std::string	readFile(const std::string &path);
 
 #endif

@@ -10,16 +10,6 @@ Reponse::~Reponse()
 
 }
 
-std::string	readFile(const std::string &path)
-{
-	std::ifstream file(path.c_str());
-	if (!file.is_open())
-		return "";
-	std::stringstream buffer;
-	buffer << file.rdbuf();
-	return (buffer.str());
-}
-
 void	Reponse::handleGET(const Request &req)
 {
 	if (req.getPath() == "/") 
@@ -47,19 +37,35 @@ void	Reponse::handleGET(const Request &req)
 			_headers["Content-Type"] = "text/html";
 		}
 	}
-}
+}	
 
 void	Reponse::handlePOST(const Request &req)
 {
-		
+	//call cgi or whatever for body
+	_statusCode = 200;
+	_statusComment = "OK";
+	_body = "<h1>POST reçu</h1><pre>" + req.getBody() + "</pre>";
+	_headers["Content-Type"] = "text/html";
 }
 
 void	Reponse::handleDELETE(const Request &req)
 {
-
+	if (remove(("www" + req.getPath()).c_str()) == 0)
+	{
+		_statusCode = 200;
+		_statusComment = "OK";
+		_body = "File deleted";
+	}
+	else
+	{
+		_statusCode = 404;
+		_statusComment = "Not Found";
+		_body = "Impossible to delete file";
+	}
+	_headers["Content-Type"] = "text/plain";
 }
 
-void	Reponse::handleNoMethod(const Request &req)
+void	Reponse::handleNoMethod()
 {
 		_statusCode = 405;
 		_statusComment = "Method Not Allowed";
@@ -69,10 +75,14 @@ void	Reponse::handleNoMethod(const Request &req)
 
 std::string	Reponse::handleRequest(const Request &req)
 {
-	if (req.getMethod() == "GET") 
+	if (req.getMethod() == "GET")
 		this->handleGET(req);
+	else if (req.getMethod() == "POST")
+		this->handlePOST(req);
+	else if (req.getMethod() == "DELETE")
+		this->handleDELETE(req);
 	else
-		this->handleNoMethod(req);
+		this->handleNoMethod();
 	std::ostringstream oss;
 	oss << _body.size();
 	_headers["Content-Length"] = oss.str();
