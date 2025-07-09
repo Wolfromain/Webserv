@@ -14,7 +14,6 @@ void	signalHandler(int signum)
 {
 	if (signum == SIGINT || signum == SIGTERM)
 	{
-		std::cout << "Signal received, shutting down..." << std::endl;
-		exit(0);
+		// a gerer
 	}
 }

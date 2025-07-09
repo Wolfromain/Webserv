@@ -7,9 +7,15 @@ int main()
 	signal(SIGTERM, signalHandler);
 
 	Config config;
+	if (!std::ifstream("config/webserv.conf"))
+	{
+		std::cerr << "The file config/webserv.conf does not exist." << std::endl;
+		return (1);
+	}
+
 	if (config.parseConfigFile("config/webserv.conf") != 0)
 	{
-		std::cerr << "Erreur lors du parsing du fichier de configuration." << std::endl;
+		std::cerr << "Error : parsing .conf." << std::endl;
 		return (1);
 	}
 

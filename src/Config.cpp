@@ -22,7 +22,7 @@ int Config::parseConfigFile(const std::string &filename)
 	if (!file.is_open())
 	{
 		std::cerr << "Error: Could not open config file: " << filename << std::endl;
-		return -1;
+		return (-1);
 	}
 	std::string line;
 	while (std::getline(file, line))
@@ -42,16 +42,16 @@ int Config::parseServerBlock(std::ifstream &file)
 	while (std::getline(file, line))
 	{
 		if (line.find("}") != std::string::npos)
-		break;
+			break;
 		if (line.empty() || line[0] == '#')
-		continue;
-		
+			continue;
+
 		if (line.find("listen") != std::string::npos)
-		server.listen_port = atoi(line.substr(line.find("listen") + 6).c_str());
+			server.listen_port = atoi(line.substr(line.find("listen") + 6).c_str());
 		else if (line.find("server_name") != std::string::npos)
-		server.server_name = line.substr(line.find("server_name") + 12);
+			server.server_name = line.substr(line.find("server_name") + 12);
 		else if (line.find("root") != std::string::npos)
-		server.root = line.substr(line.find("root") + 5);
+			server.root = line.substr(line.find("root") + 5);
 		else if (line.find("error_page") != std::string::npos)
 		{
 			std::istringstream iss(line);
@@ -60,27 +60,27 @@ int Config::parseServerBlock(std::ifstream &file)
 			while (iss >> code)
 			{
 				if (code[0] == '/')
-				path = code;
+					path = code;
 				else
-				server.error_pages[atoi(code.c_str())] = "";
+					server.error_pages[atoi(code.c_str())] = "";
 			}
 			if (!path.empty())
-			for (std::map<int, std::string>::iterator it = server.error_pages.begin(); it != server.error_pages.end(); ++it)
-			if (it->second.empty())
-			it->second = path;
+				for (std::map<int, std::string>::iterator it = server.error_pages.begin(); it != server.error_pages.end(); ++it)
+					if (it->second.empty())
+						it->second = path;
 		}
 		else if (line.find("max_body_size") != std::string::npos)
 		{
 			std::string value = line.substr(line.find("max_body_size") + 13);
 			size_t res = 1;
 			if (value.find("M") != std::string::npos)
-			res = 1024 * 1024;
+				res = 1024 * 1024;
 			else if (value.find("K") != std::string::npos)
-			res = 1024;
+				res = 1024;
 			server.max_body_size = atoi(value.c_str()) * res;
 		}
 		else if (line.find("location") != std::string::npos)
-		parseLocationBlock(file, server, line);
+			parseLocationBlock(file, server, line);
 	}
 	_servers.push_back(server);
 	return (0);
@@ -100,7 +100,7 @@ void Config::parseLocationBlock(std::ifstream &file, Server &server, const std::
 			break;
 		if (line.empty() || line[0] == '#')
 			continue;
-		
+
 		if (line.find("root") != std::string::npos)
 			locations.root = line.substr(line.find("root") + 5);
 		else if (line.find("index") != std::string::npos)

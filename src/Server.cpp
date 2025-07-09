@@ -2,7 +2,6 @@
 
 Server::Server()
 {
-	_port = 8080;
 }
 
 Server::Server(const Server& cpy)
@@ -30,8 +29,10 @@ void Server::start()
 	setsockopt(_server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
 	_address.sin_family = AF_INET;
-	_address.sin_port = htons(_port);
+	_address.sin_port = htons(listen_port);
 	_address.sin_addr.s_addr = INADDR_ANY;
+
+
 
 	if (bind(_server_fd, (struct sockaddr*)&_address, sizeof(_address)) == -1)
 	{
@@ -45,7 +46,7 @@ void Server::start()
 		return;
 	}
 
-	std::cout << "Server started on port " << _port << std::endl;
+	std::cout << "Server started on port " << listen_port << std::endl;
 
 	std::vector<struct pollfd> fds;
 	struct pollfd server_pollfd = {_server_fd, POLLIN, 0};
@@ -72,7 +73,7 @@ void Server::start()
 						std::cerr << "Failed to accept connection" << std::endl;
 						break;
 					}
-					struct pollfd client_pollfd = {client_fd, POLLIN, 0};
+					struct pollfd client_pollfd = {client_fd, POLLIN, 100};
 					fds.push_back(client_pollfd);
 					std::cout << "New client connected: FD " << client_fd << std::endl;
 				}
@@ -88,6 +89,8 @@ void Server::start()
 						--i;
 						break;
 					}
+					if (is_read > 0 && is_read < (int)sizeof(buffer))
+						buffer[is_read] = '\0';
 
 					std::cout << "Received: " << buffer << std::endl;
 					Request	request;
