@@ -38,7 +38,11 @@ std::string	Request::getQuerry_string() const
 std::string	Request::getBody() const
 {
 	return (_body);
+}
 
+std::map<std::string, std::string>	Request::getHeaders() const
+{
+	return (_headers);
 }
 
 void	Request::methodParse(const std::string &line)

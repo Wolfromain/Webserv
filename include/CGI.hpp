@@ -10,6 +10,8 @@
 # include <fcntl.h>
 # include <cstring>
 # include <sys/stat.h>
+# include <vector>
+# include "Request.hpp"
 
 class CGI
 {

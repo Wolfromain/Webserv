@@ -26,6 +26,7 @@ class Request
 		std::string	getVersion() const;
 		std::string	getQuerry_string() const;
 		std::string	getBody() const;
+		std::map<std::string, std::string>	getHeaders() const;
 
 		void		parse(const std::string &raw_request);
 		void		methodParse(const std::string &line);
