@@ -7,6 +7,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <cstdlib>
 
 # include "Server.hpp"
 
@@ -26,6 +27,7 @@ class Config
 		int parseConfigFile(const std::string &filename);
 		int parseServerBlock(std::ifstream &file);
 		void parseLocationBlock(std::ifstream &file, Server &server, const std::string &firstLine);
+		const std::vector<Server>& getServers() const;
 };
 
 #endif

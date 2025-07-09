@@ -8,9 +8,13 @@
 # include <unistd.h>
 # include <netinet/in.h>
 # include <sys/socket.h>
+# include <signal.h>
 
 # include "Request.hpp"
 # include "Reponse.hpp"
+# include "Config.hpp"
+# include "utils.hpp"
+# include "CGI.hpp"
 
 # define PORT 8080
 
@@ -31,11 +35,13 @@ class Server
 			std::string path;
 			std::string root;
 			std::string index;
+			std::string cgi_extension;
 			std::vector<std::string> allow_methods;
 			bool autoindex;
 		};
 
 		Server();
+		Server(const Server& conf);
 		~Server();
 		int listen_port;
 		std::string server_name;

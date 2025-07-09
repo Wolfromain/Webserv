@@ -9,3 +9,12 @@ std::string	readFile(const std::string &path)
 	buffer << file.rdbuf();
 	return (buffer.str());
 }
+
+void	signalHandler(int signum)
+{
+	if (signum == SIGINT || signum == SIGTERM)
+	{
+		std::cout << "Signal received, shutting down..." << std::endl;
+		exit(0);
+	}
+}

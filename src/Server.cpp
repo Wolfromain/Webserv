@@ -5,9 +5,14 @@ Server::Server()
 	_port = PORT;
 }
 
+Server::Server(const Server& cpy)
+{
+	*this = cpy;
+	_server_fd = -1;
+}
+
 Server::~Server()
 {
-	stop();
 }
 
 void Server::start()
@@ -95,7 +100,5 @@ void Server::stop()
 		std::cout << "Server closed" << std::endl;
 	}
 	else
-	{
 		std::cout << "Server not running" << std::endl;
-	}
 }

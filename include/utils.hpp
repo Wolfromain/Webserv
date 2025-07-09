@@ -7,5 +7,6 @@
 #include "Config.hpp"
 
 std::string		readFile(const std::string &path);
+void		signalHandler(int signum);
 
 #endif
