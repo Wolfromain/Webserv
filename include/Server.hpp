@@ -9,14 +9,13 @@
 # include <netinet/in.h>
 # include <sys/socket.h>
 # include <signal.h>
+# include <poll.h>
 
 # include "Request.hpp"
 # include "Reponse.hpp"
 # include "Config.hpp"
 # include "utils.hpp"
 # include "CGI.hpp"
-
-# define PORT 8080
 
 class Request;
 
