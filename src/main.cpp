@@ -21,7 +21,7 @@ int main()
 
 	const std::vector<Server>& servers = config.getServers();
 	std::vector<Server> runningServers;
-	for (size_t i = 0; i < servers.size(); ++i) //Si on fait plusieurs serveurs
+	for (size_t i = 0; i < servers.size(); ++i)
 	{
 		runningServers.push_back(Server(servers[i]));
 		runningServers.back().start();

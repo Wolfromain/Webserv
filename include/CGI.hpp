@@ -11,7 +11,8 @@
 # include <cstring>
 # include <sys/stat.h>
 # include <vector>
-# include "Request.hpp"
+
+# include "Server.hpp"
 
 class CGI
 {

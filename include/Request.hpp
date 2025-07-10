@@ -7,6 +7,8 @@
 #include <cstdlib>
 #include <map>
 
+# include "Server.hpp"
+
 class Request
 {
 	private :

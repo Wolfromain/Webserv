@@ -5,8 +5,8 @@
 #include <sstream>
 #include <cstdlib>
 #include <map>
-#include "Request.hpp"
-#include "utils.hpp"
+
+#include "Server.hpp"
 
 class Request;
 

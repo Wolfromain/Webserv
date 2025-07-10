@@ -7,7 +7,9 @@ std::vector<char *>	handleEnvp(Request &req)
 	env.push_back("SCRIPT_FILENAME=" + req.getPath());
 	env.push_back("REQUEST_METHOD=" + req.getMethod());
 	env.push_back("QUERY_STRING=" + req.getQuerry_string());
-	env.push_back("CONTENT_LENGTH=" + req.getBody().length());
+	std::ostringstream iss;
+	iss << req.getBody().length();
+	env.push_back("CONTENT_LENGTH=" + iss.str());
 	env.push_back("CONTENT_TYPE=application/x-www-form-urlencoded");
 	env.push_back("REDIRECT_STATUS=200");
 	std::vector<char *> envp;
@@ -48,8 +50,5 @@ std::string	cgiExec(Request &req, std::string script_path)
 			close(stdin_pipe[0]);
 			close(stdout_pipe[1]);
 		}
-
-
-
 	}
 }

@@ -113,7 +113,5 @@ void	Request::printAllToTest()
 	std::cout << "Body :" << _body << std::endl;
 	std::cout << "Headers :" << std::endl;
 	for (std::map<std::string, std::string>::const_iterator it = _headers.begin(); it != _headers.end(); ++it)
-	{
 		std::cout << it->first << ": " << it->second << std::endl;
-	}
 }
