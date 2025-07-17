@@ -19,36 +19,36 @@ std::vector<char *>	handleEnvp(Request &req)
 	return (envp);
 }
 
-std::string	cgiExec(Request &req, std::string script_path)
-{
-	if (req.getPath().find("/cgi-bin/", 0) == 0 || req.getPath().find(".py") != std::string::npos)
-	{
-		int		stdin_pipe[2];
-		int		stdout_pipe[2];
+// std::string	cgiExec(Request &req, std::string script_path)
+// {
+// 	if (req.getPath().find("/cgi-bin/", 0) == 0 || req.getPath().find(".py") != std::string::npos)
+// 	{
+// 		int		stdin_pipe[2];
+// 		int		stdout_pipe[2];
 
-		if (pipe(stdin_pipe) == -1|| pipe(stdout_pipe) == -1)
-			return ("");
-		pid_t pid = fork();
-		if (pid == -1)
-			return ("");
-		if (pid == 0)
-		{
-			dup2(stdin_pipe[0], STDIN_FILENO);
-			dup2(stdout_pipe[1], STDOUT_FILENO);
+// 		if (pipe(stdin_pipe) == -1|| pipe(stdout_pipe) == -1)
+// 			return ("");
+// 		pid_t pid = fork();
+// 		if (pid == -1)
+// 			return ("");
+// 		if (pid == 0)
+// 		{
+// 			dup2(stdin_pipe[0], STDIN_FILENO);
+// 			dup2(stdout_pipe[1], STDOUT_FILENO);
 
-			close(stdin_pipe[1]);
-			close(stdout_pipe[0]);
+// 			close(stdin_pipe[1]);
+// 			close(stdout_pipe[0]);
 			
-			std::vector<char *>	env = handleEnvp(req);
-			char	*args[] = { const_cast<char *>(script_path.c_str()), NULL };
+// 			std::vector<char *>	env = handleEnvp(req);
+// 			char	*args[] = { const_cast<char *>(script_path.c_str()), NULL };
 			
-			execve(script_path.c_str(), args, &env[0]);
-			exit(1);
-		}
-		else
-		{
-			close(stdin_pipe[0]);
-			close(stdout_pipe[1]);
-		}
-	}
-}
+// 			execve(script_path.c_str(), args, &env[0]);
+// 			exit(1);
+// 		}
+// 		else
+// 		{
+// 			close(stdin_pipe[0]);
+// 			close(stdout_pipe[1]);
+// 		}
+// 	}
+// }

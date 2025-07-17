@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "Reponse.hpp"
 
 Server::Server()
 {
@@ -99,7 +100,7 @@ void Server::start()
 					request.printAllToTest();
 
 					Reponse rep;
-					std::string reponse = rep.handleRequest(request);
+					std::string reponse = rep.handleRequest(request, *this);
 					send(fds[i].fd, reponse.c_str(), reponse.size(), 0);
 					close(fds[i].fd);
 					fds.erase(fds.begin() + i);

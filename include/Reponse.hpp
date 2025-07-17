@@ -9,6 +9,7 @@
 #include "Server.hpp"
 
 class Request;
+class Server;
 
 class Reponse
 {
@@ -21,11 +22,18 @@ class Reponse
 	public :
 		Reponse();
 		~Reponse();
-		std::string	handleRequest(const Request &req);
+		// std::string	handleRequest(const Request &req);
+		std::string	handleRequest(const Request &req, const Server &server);
 		void		handleGET(const Request &req);
 		void		handlePOST(const Request &req);
 		void		handleDELETE(const Request &req);
 		void		handleNoMethod();
+
+		//Locations
+		const Location* matchLocation(const Server &server, const std::string &path);
+		std::string findTruePath(const Server &server, const Location *location, const std::string &path);
+		bool isMethodAllowed(const Location *location, const std::string &method);
+
 
 };
 

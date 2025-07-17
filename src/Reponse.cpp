@@ -73,9 +73,39 @@ void	Reponse::handleNoMethod()
 		_headers["Content-Type"] = "text/plain";
 }
 
-std::string	Reponse::handleRequest(const Request &req)
+// std::string	Reponse::handleRequest(const Request &req)
+// {
+// 	if (req.getMethod() == "GET")
+// 		this->handleGET(req);
+// 	else if (req.getMethod() == "POST")
+// 		this->handlePOST(req);
+// 	else if (req.getMethod() == "DELETE")
+// 		this->handleDELETE(req);
+// 	else
+// 		this->handleNoMethod();
+// 	std::ostringstream oss;
+// 	oss << _body.size();
+// 	_headers["Content-Length"] = oss.str();
+
+// 	std::ostringstream ossCode;
+// 	ossCode << _statusCode;
+// 	std::string	rep = req.getVersion() + " " + ossCode.str() + " " + _statusComment + "\r\n";
+// 	for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); it++)
+// 		rep += it->first + ": " + it->second + "\r\n";
+// 	rep += "\r\n";
+// 	rep += _body;
+	
+// 	return (rep);
+// }
+
+
+std::string	Reponse::handleRequest(const Request &req, const Server &server)
 {
-	if (req.getMethod() == "GET")
+	const Location* location = matchLocation(server, req.getPath());
+
+	if (!isMethodAllowed(location, req.getMethod()))
+		this->handleNoMethod();
+	else if (req.getMethod() == "GET")
 		this->handleGET(req);
 	else if (req.getMethod() == "POST")
 		this->handlePOST(req);
@@ -94,6 +124,59 @@ std::string	Reponse::handleRequest(const Request &req)
 		rep += it->first + ": " + it->second + "\r\n";
 	rep += "\r\n";
 	rep += _body;
-
+	
 	return (rep);
+}
+
+const Location *Reponse::matchLocation(const Server &server, const std::string &path)
+{
+	const Location *match = NULL;
+
+	for (size_t i = 0; i < server.locations.size(); i++)
+	{
+		const Location &loc = server.locations[i];
+		if (path.find(loc.path) == 0)
+		{
+			if (!match || loc.path.length() > match->path.length())
+				match = &loc;
+		}
+	}
+	return (match);
+}
+
+std::string Reponse::findTruePath(const Server &server, const Location *location, const std::string &path)
+{
+	std::string root;
+	std::string relativePath = path;
+
+	if (location && !location->root.empty())
+		root = location->root;
+	else
+		root = server.root;
+
+	if (location)
+		relativePath = path.substr(location->path.length());
+
+	if (!root.empty() && root[root.length() - 1] == '/')
+		root.erase(root.length() - 1);
+
+	if (!relativePath.empty() && relativePath[0] == '/')
+		relativePath = relativePath.substr(1);
+
+	return (root + "/" + relativePath);
+}
+
+bool Reponse::isMethodAllowed(const Location *location, const std::string &method)
+{
+	if (!location || location->allow_methods.empty())
+		return (false);
+
+	std::vector<std::string>::const_iterator it = location->allow_methods.begin();
+	while (it != location->allow_methods.end())
+	{
+		if (*it == method)
+			return (true);
+		++it;
+	}
+	return (false);
 }

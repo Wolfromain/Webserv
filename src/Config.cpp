@@ -88,7 +88,7 @@ int Config::parseServerBlock(std::ifstream &file)
 
 void Config::parseLocationBlock(std::ifstream &file, Server &server, const std::string &firstLine)
 {
-	Server::Location locations;
+	Location locations;
 	std::istringstream iss(firstLine);
 	std::string tmp;
 	iss >> tmp >> locations.path;
@@ -118,5 +118,6 @@ void Config::parseLocationBlock(std::ifstream &file, Server &server, const std::
 		else if (line.find("cgi_extension") != std::string::npos)
 			locations.cgi_extension = line.substr(line.find("cgi_extension") + 14);
 	}
+	std::cout << locations.allow_methods.size() << " methods allowed for location " << locations.path << std::endl;
 	server.locations.push_back(locations);
 }

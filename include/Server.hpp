@@ -12,12 +12,21 @@
 # include <poll.h>
 
 # include "Request.hpp"
-# include "Reponse.hpp"
 # include "Config.hpp"
 # include "utils.hpp"
 # include "CGI.hpp"
 
 class Request;
+
+struct Location
+{
+	std::string path;
+	std::string root;
+	std::string index;
+	std::string cgi_extension;
+	std::vector<std::string> allow_methods;
+	bool autoindex;
+};
 
 class Server
 {
@@ -27,16 +36,6 @@ class Server
 	struct sockaddr_in _address;
 
 	public:
-
-		struct Location
-		{
-			std::string path;
-			std::string root;
-			std::string index;
-			std::string cgi_extension;
-			std::vector<std::string> allow_methods;
-			bool autoindex;
-		};
 
 		Server();
 		Server(const Server& conf);
