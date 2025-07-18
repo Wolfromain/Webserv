@@ -13,19 +13,11 @@
 # include <vector>
 
 # include "Server.hpp"
+# include "Request.hpp"
 
-class CGI
-{
-	private:
+class Request;
 
-	
-	
-	public:
-
-		CGI();
-		~CGI();
-
-
-};
+std::vector<char *>	handleEnvp(const Request &req);
+std::string			cgiExec(const Request &req, std::string script_path);
 
 #endif

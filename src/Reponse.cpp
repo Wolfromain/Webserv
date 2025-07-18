@@ -41,10 +41,10 @@ void	Reponse::handleGET(const Request &req)
 
 void	Reponse::handlePOST(const Request &req)
 {
-	//call cgi or whatever for body
+	std::string body = cgiExec(req, req.getPath());
 	_statusCode = 200;
 	_statusComment = "OK";
-	_body = "<h1>POST reçu</h1><pre>" + req.getBody() + "</pre>";
+	_body = "<h1>POST reçu</h1><pre>" + body + "</pre>";
 	_headers["Content-Type"] = "text/html";
 }
 

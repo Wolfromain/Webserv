@@ -7,6 +7,7 @@
 #include <map>
 
 #include "Server.hpp"
+#include "CGI.hpp"
 
 class Request;
 class Server;
