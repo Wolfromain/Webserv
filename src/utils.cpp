@@ -15,5 +15,6 @@ void	signalHandler(int signum)
 	if (signum == SIGINT || signum == SIGTERM)
 	{
 		// a gerer
+		exit(0);
 	}
 }
