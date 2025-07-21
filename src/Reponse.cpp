@@ -215,7 +215,6 @@ std::string Reponse::findTruePath(const Server &server, const Location *location
 
 	std::string fullPath = root + "/" + relativePath;
 
-	// Ajoute ceci : si c'est un dossier ou "/" et qu'il y a un index défini
 	if (location && (relativePath.empty() || fullPath[fullPath.length() - 1] == '/')) {
 		if (!location->index.empty()) {
 			if (!relativePath.empty() && fullPath[fullPath.length() - 1] != '/')
@@ -223,8 +222,7 @@ std::string Reponse::findTruePath(const Server &server, const Location *location
 			fullPath += location->index;
 		}
 	}
-
-	return fullPath;
+	return (fullPath);
 }
 
 bool Reponse::isMethodAllowed(const Location *location, const std::string &method)

@@ -49,9 +49,17 @@ int Config::parseServerBlock(std::ifstream &file)
 		if (line.find("listen") != std::string::npos)
 			server.listen_port = atoi(line.substr(line.find("listen") + 6).c_str());
 		else if (line.find("server_name") != std::string::npos)
-			server.server_name = line.substr(line.find("server_name") + 12);
+		{
+			std::string value = line.substr(line.find("server_name") + 11);
+			cleanValue(value);
+			server.server_name = value;
+		}
 		else if (line.find("root") != std::string::npos)
-			server.root = line.substr(line.find("root") + 5);
+		{
+			std::string value = line.substr(line.find("root") + 4);
+			cleanValue(value);
+			server.root = value;
+		}
 		else if (line.find("error_page") != std::string::npos)
 		{
 			std::istringstream iss(line);
@@ -92,7 +100,7 @@ void Config::parseLocationBlock(std::ifstream &file, Server &server, const std::
 	std::istringstream iss(firstLine);
 	std::string tmp;
 	iss >> tmp >> locations.path;
-
+		
 	std::string line;
 	while (std::getline(file, line))
 	{
@@ -100,24 +108,52 @@ void Config::parseLocationBlock(std::ifstream &file, Server &server, const std::
 			break;
 		if (line.empty() || line[0] == '#')
 			continue;
-
+			
 		if (line.find("root") != std::string::npos)
-			locations.root = line.substr(line.find("root") + 5);
+		{
+			std::string value = line.substr(line.find("root") + 4);
+			cleanValue(value);
+			locations.root = value;
+		}
 		else if (line.find("index") != std::string::npos)
-			locations.index = line.substr(line.find("index") + 6);
+		{
+			std::string value = line.substr(line.find("index") + 5);
+			cleanValue(value);
+			locations.index = value;
+		}
 		else if (line.find("allow_methods") != std::string::npos)
 		{
 			std::istringstream iss2(line);
 			std::string keyword, method;
 			iss2 >> keyword;
 			while (iss2 >> method)
+			{
+				if (!method.empty() && method[method.length()-1] == ';')
+					method.erase(method.length()-1);
 				locations.allow_methods.push_back(method);
+			}
 		}
 		else if (line.find("autoindex") != std::string::npos)
 			locations.autoindex = (line.find("on") != std::string::npos);
 		else if (line.find("cgi_extension") != std::string::npos)
-			locations.cgi_extension = line.substr(line.find("cgi_extension") + 14);
+		{
+			std::string value = line.substr(line.find("cgi_extension") + 13);
+			cleanValue(value);
+			locations.cgi_extension = value;
+		}
 	}
-	std::cout << locations.allow_methods.size() << " methods allowed for location " << locations.path << std::endl;
 	server.locations.push_back(locations);
+}
+
+void Config::cleanValue(std::string &value)
+{
+	while (!value.empty() && (value[0] == ' ' || value[0] == '\t'))
+		value = value.substr(1);
+		
+	while (!value.empty() && (value[value.length()-1] == ' ' || 
+			value[value.length()-1] == '\t' || 
+			value[value.length()-1] == ';' ||
+			value[value.length()-1] == '\r' ||
+			value[value.length()-1] == '\n'))
+		value.erase(value.length()-1);
 }

@@ -28,6 +28,7 @@ class Config
 		int parseServerBlock(std::ifstream &file);
 		void parseLocationBlock(std::ifstream &file, Server &server, const std::string &firstLine);
 		const std::vector<Server>& getServers() const;
+		void cleanValue(std::string &value);
 };
 
 #endif
