@@ -25,9 +25,9 @@ class Reponse
 		~Reponse();
 		// std::string	handleRequest(const Request &req);
 		std::string	handleRequest(const Request &req, const Server &server);
-		void		handleGET(const Request &req);
-		void		handlePOST(const Request &req);
-		void		handleDELETE(const Request &req);
+		void		handleGET(std::string true_path);
+		void		handlePOST(const Request &req, std::string true_path);
+		void		handleDELETE(std::string true_path);
 		void		handleNoMethod();
 
 		//Locations

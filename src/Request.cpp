@@ -59,13 +59,19 @@ void	Request::methodParse(const std::string &line)
 
 void	Request::headersParse(const std::string &line)
 {
-	std::string	key = line.substr(0, line.find(':'));
-	std::string	val = line.substr(line.find(':') + 1);
+	std::size_t pos = line.find(':');
+	if (pos == std::string::npos)
+		return;
+	std::string key = line.substr(0, pos);
+	std::string val = "";
+	if (pos + 1 < line.size())
+		val = line.substr(pos + 1);
 	while (!val.empty() && val[0] == ' ')
 		val = val.substr(1);
 	while (!val.empty() && val[val.size() - 1] == ' ')
 		val = val.substr(0, val.size() - 1); 
 	_headers.insert(std::pair<std::string, std::string>(key, val));
+
 }
 
 void	Request::parse(const std::string &raw_requeste)
@@ -88,7 +94,7 @@ void	Request::parse(const std::string &raw_requeste)
 		headersParse(line);
 	}
 	std::string	isContLen = _headers["Content-Length"];
-	int	len = -1;
+	int	len = 0;
 	if (!isContLen.empty())
 		len = atoi(isContLen.c_str());
 	if (len > 0)

@@ -10,18 +10,18 @@ Reponse::~Reponse()
 
 }
 
-void	Reponse::handleGET(const Request &req)
+void	Reponse::handleGET(std::string true_path)
 {
-	if (req.getPath() == "/") 
+	if (true_path == "/") 
 	{
 		_statusCode = 200;
 		_statusComment = "OK";
-		_body = "<html><h1>Bienvenue</h1></html>"; //page d'acueil a setup
+		_body = readFile(true_path); //page d'acueil a setup
 		_headers["Content-Type"] = "text/html";
 	}
 	else
 	{
-		std::string buffer = readFile("www" + req.getPath());
+		std::string buffer = readFile(true_path);
 		if (!buffer.empty())
 		{
 			_statusCode = 200;
@@ -39,18 +39,64 @@ void	Reponse::handleGET(const Request &req)
 	}
 }	
 
-void	Reponse::handlePOST(const Request &req)
+void	Reponse::handlePOST(const Request &req, std::string true_path)
 {
-	std::string body = cgiExec(req, req.getPath());
-	_statusCode = 200;
-	_statusComment = "OK";
-	_body = "<h1>POST reçu</h1><pre>" + body + "</pre>";
-	_headers["Content-Type"] = "text/html";
+	std::string output = cgiExec(req, true_path);
+	std::string headers_part, body_part;
+	size_t pos = output.find("\r\n\r\n");
+	if (pos != std::string::npos)
+	{
+		headers_part = output.substr(0, pos);
+		body_part = output.substr(pos + 4);
+	}
+
+	std::map<std::string, std::string> headers;
+	std::istringstream stream(headers_part);
+	std::string line;
+
+	while (std::getline(stream, line))
+	{
+		if (line.size() >= 2 && line[line.size()-1] == '\r')
+			line = line.substr(0, line.size()-1);
+
+		size_t sep = line.find(": ");
+		if (sep != std::string::npos)
+		{
+			std::string key = line.substr(0, sep);
+			std::string value = line.substr(sep + 2);
+			headers[key] = value;
+		}
+	}
+	int status_code = 200;
+	std::string status_text = "OK";
+
+	while (std::getline(stream, line))
+	{
+		if (line.size() >= 2 && line[line.size()-1] == '\r')
+			line = line.substr(0, line.size()-1);
+
+		if (line.find("Status:") == 0) {
+			std::string status_line = line.substr(7);
+			size_t space = status_line.find(' ');
+			if (space != std::string::npos) {
+				status_code = std::atoi(status_line.substr(0, space).c_str());
+				status_text = status_line.substr(space + 1);
+			}
+			continue;
+		}
+		size_t sep = line.find(": ");
+		if (sep != std::string::npos)
+		{
+			std::string key = line.substr(0, sep);
+			std::string value = line.substr(sep + 2);
+			headers[key] = value;
+		}
+	}
 }
 
-void	Reponse::handleDELETE(const Request &req)
+void	Reponse::handleDELETE(std::string true_path)
 {
-	if (remove(("www" + req.getPath()).c_str()) == 0)
+	if (remove(true_path.c_str()) == 0)
 	{
 		_statusCode = 200;
 		_statusComment = "OK";
@@ -101,16 +147,16 @@ void	Reponse::handleNoMethod()
 
 std::string	Reponse::handleRequest(const Request &req, const Server &server)
 {
-	const Location* location = matchLocation(server, req.getPath());
+	const Location* location = matchLocation(server, findTruePath(server, location, req.getPath()));
 
 	if (!isMethodAllowed(location, req.getMethod()))
 		this->handleNoMethod();
 	else if (req.getMethod() == "GET")
-		this->handleGET(req);
+		this->handleGET(findTruePath(server, location, req.getPath()));
 	else if (req.getMethod() == "POST")
-		this->handlePOST(req);
+		this->handlePOST(req, findTruePath(server, location, req.getPath()));
 	else if (req.getMethod() == "DELETE")
-		this->handleDELETE(req);
+		this->handleDELETE(findTruePath(server, location, req.getPath()));
 	else
 		this->handleNoMethod();
 	std::ostringstream oss;
@@ -154,8 +200,12 @@ std::string Reponse::findTruePath(const Server &server, const Location *location
 	else
 		root = server.root;
 
-	if (location)
+	if (location && path.length() > location->path.length())
 		relativePath = path.substr(location->path.length());
+	else if (location && path.length() == location->path.length())
+		relativePath = "";
+	else
+		relativePath = path;
 
 	if (!root.empty() && root[root.length() - 1] == '/')
 		root.erase(root.length() - 1);
