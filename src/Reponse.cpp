@@ -12,32 +12,26 @@ Reponse::~Reponse()
 
 void	Reponse::handleGET(std::string true_path)
 {
-	if (true_path == "/") 
+	std::cout << "GET true_path: " << true_path << std::endl;
+	if (true_path[true_path.length() - 1] == '/')
+		true_path += "index.html"; // fallback si jamais
+
+	std::string buffer = readFile(true_path);
+	if (!buffer.empty())
 	{
 		_statusCode = 200;
 		_statusComment = "OK";
-		_body = readFile(true_path); //page d'acueil a setup
+		_body = buffer;
 		_headers["Content-Type"] = "text/html";
 	}
 	else
 	{
-		std::string buffer = readFile(true_path);
-		if (!buffer.empty())
-		{
-			_statusCode = 200;
-			_statusComment = "OK";
-			_body = buffer;
-			_headers["Content-Type"] = "text/html";
-		}
-		else
-		{
-			_statusCode = 404;
-			_statusComment = "Not Found";
-			_body = "<h1>404 Not Found</h1>";
-			_headers["Content-Type"] = "text/html";
-		}
+		_statusCode = 404;
+		_statusComment = "Not Found";
+		_body = "<h1>404 Not Found</h1>";
+		_headers["Content-Type"] = "text/html";
 	}
-}	
+}
 
 void	Reponse::handlePOST(const Request &req, std::string true_path)
 {
@@ -219,7 +213,18 @@ std::string Reponse::findTruePath(const Server &server, const Location *location
 	if (!relativePath.empty() && relativePath[0] == '/')
 		relativePath = relativePath.substr(1);
 
-	return (root + "/" + relativePath);
+	std::string fullPath = root + "/" + relativePath;
+
+	// Ajoute ceci : si c'est un dossier ou "/" et qu'il y a un index défini
+	if (location && (relativePath.empty() || fullPath[fullPath.length() - 1] == '/')) {
+		if (!location->index.empty()) {
+			if (!relativePath.empty() && fullPath[fullPath.length() - 1] != '/')
+				fullPath += "/";
+			fullPath += location->index;
+		}
+	}
+
+	return fullPath;
 }
 
 bool Reponse::isMethodAllowed(const Location *location, const std::string &method)
