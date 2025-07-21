@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta charset="UTF-8">
     <title>Form GET vers CGI</title>
 </head>
 <body>
+	<header>
     <h1>Formulaire (GET)</h1>
-    <form action="/cgi-bin/cgi.py" method="get">
-        <label>Nom: <input type="text" name="name"></label><br>
-        <label>Âge: <input type="text" name="age"></label><br>
-        <input type="submit" value="Envoyer">
-    </form>
+	</header>
+
+	<main>
+    	<form action="/cgi-bin/cgi.py" method="get">
+    	    <label>Nom: <input type="text" name="name"></label><br>
+    	    <label>Âge: <input type="text" name="age"></label><br>
+    	    <input type="submit" value="Envoyer">
+    	</form>
+	</main>
 </body>
 </html>

@@ -67,7 +67,7 @@ void	Reponse::handlePOST(const Request &req, std::string true_path)
 			headers[key] = value;
 		}
 	}
-	int status_code = 200;
+	int status_code;
 	std::string status_text = "OK";
 
 	while (std::getline(stream, line))
@@ -92,6 +92,11 @@ void	Reponse::handlePOST(const Request &req, std::string true_path)
 			headers[key] = value;
 		}
 	}
+
+	// _statusCode = status_code;
+	// _statusComment = status_text;
+	// _body = body_part;
+	// _headers = headers;
 }
 
 void	Reponse::handleDELETE(std::string true_path)
@@ -147,16 +152,17 @@ void	Reponse::handleNoMethod()
 
 std::string	Reponse::handleRequest(const Request &req, const Server &server)
 {
-	const Location* location = matchLocation(server, findTruePath(server, location, req.getPath()));
+	const Location* location = matchLocation(server, req.getPath());
 
+	std::string true_path = findTruePath(server, location, req.getPath());
 	if (!isMethodAllowed(location, req.getMethod()))
 		this->handleNoMethod();
 	else if (req.getMethod() == "GET")
-		this->handleGET(findTruePath(server, location, req.getPath()));
+		this->handleGET(true_path);
 	else if (req.getMethod() == "POST")
-		this->handlePOST(req, findTruePath(server, location, req.getPath()));
+		this->handlePOST(req, true_path);
 	else if (req.getMethod() == "DELETE")
-		this->handleDELETE(findTruePath(server, location, req.getPath()));
+		this->handleDELETE(true_path);
 	else
 		this->handleNoMethod();
 	std::ostringstream oss;
