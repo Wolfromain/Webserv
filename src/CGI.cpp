@@ -39,9 +39,9 @@ std::string	cgiExec(const Request &req, std::string script_path)
 		close(stdout_pipe[0]);
 		
 		std::vector<char *>	env = handleEnvp(req);
-		char	*args[] = { const_cast<char *>(script_path.c_str()), NULL };
+		char *argv[] = { const_cast<char *>("python3"), const_cast<char *>(script_path.c_str()), NULL };
+		execve("/usr/bin/python3", argv, &env[0]);
 		
-		execve(script_path.c_str(), args, &env[0]);
 		exit(1);
 	}
 	else
