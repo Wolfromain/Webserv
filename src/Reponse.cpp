@@ -129,10 +129,12 @@ void	Reponse::handlePOST(const Request &req, std::string true_path)
 		if (line.size() >= 2 && line[line.size()-1] == '\r')
 			line = line.substr(0, line.size()-1);
 
-		if (line.find("Status:") == 0) {
+		if (line.find("Status:") == 0)
+		{
 			std::string status_line = line.substr(7);
 			size_t space = status_line.find(' ');
-			if (space != std::string::npos) {
+			if (space != std::string::npos)
+			{
 				status_code = std::atoi(status_line.substr(0, space).c_str());
 				status_text = status_line.substr(space + 1);
 			}
