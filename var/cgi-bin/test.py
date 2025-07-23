@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 import sys
 import os
+import cgi
 
-def main():
-	print("Content-Type: text/html")
-	print()
-		
-	print("<html><body>")
-	print("<h1>Hello from CGI Python script!</h1>")
-		
-	query = os.environ.get('QUERY_STRING', '')
-	print(f"<p>Query string: {query}</p>")
-		
-	print("</body></html>")
+print("Content-type: text/html\n")
+print("<html><body>")
+print("<h2>Environnement CGI:</h2>")
+for k, v in os.environ.items():
+    print(f"{k}: {v}<br>")
+print(os.environ.get("QUERY_STRING", ""))
+form = cgi.FieldStorage()
+name = form.getvalue("name", "")
+email = form.getvalue("email", "")
+message = form.getvalue("message", "")
 
-if __name__ == "__main__":
-	main()
+print(f"<h2>Nom: {name}</h2>")
+print(f"<h2>Email: {email}</h2>")
+print(f"<h2>Message: {message}</h2>")
+print(f"</body></html>")

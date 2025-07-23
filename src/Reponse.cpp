@@ -46,19 +46,16 @@ std::string Reponse::getContentType(const std::string &path)
 
 void Reponse::handleGET(const Request &req, std::string true_path)
 {
-	std::cout << "GET true_path: " << true_path << std::endl;
-
-	// S'il s'agit d'un fichier .py dans cgi-bin, on exécute CGI
 	if (true_path.find(".py") != std::string::npos && true_path.find("/cgi-bin/") != std::string::npos)
 	{
-		std::string output = cgiExec(req, true_path); // _request doit être accessible ici
+		std::string output = cgiExec(req, true_path); 
 
 		if (!output.empty())
 		{
 			_statusCode = 200;
 			_statusComment = "OK";
 			_body = output;
-			_headers["Content-Type"] = "text/html"; // Ou parser les headers dans output
+			_headers["Content-Type"] = "text/html";
 		}
 		else
 		{
@@ -70,7 +67,6 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 		return;
 	}
 
-	// Sinon : comportement classique (fichier statique)
 	if (true_path[true_path.length() - 1] == '/')
 		true_path += "index.html";
 

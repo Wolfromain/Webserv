@@ -115,7 +115,7 @@ void	Request::printAllToTest()
 	std::cout << "Methode :" << _method << std::endl;
 	std::cout << "Path :" << _path << std::endl;
 	std::cout << "Version :" << _version << std::endl;
-	std::cout << "Quesrry string :" << _querry_string << std::endl;
+	std::cout << "Querry string :" << _querry_string << std::endl;
 	std::cout << "Body :" << _body << std::endl;
 	std::cout << "Headers :" << std::endl;
 	for (std::map<std::string, std::string>::const_iterator it = _headers.begin(); it != _headers.end(); ++it)
