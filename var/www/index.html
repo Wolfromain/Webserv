@@ -1,34 +1,63 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
-<head>
-	<meta charset="UTF-8">
-	<title>Form GET vers CGI</title>
-	<link rel="stylesheet" href="styles/style.css">
-</head>
-<body>
-	<header>
-		<h1>Formulaire GET vers CGI</h1>
-	</header>
+	<head>
+		<meta charset="UTF-8">
+		<title>Form GET vers CGI</title>
+		<link rel="stylesheet" href="styles/style.css">
+	</head>
+	<body>
+		<header>
+			<h1>Formulaire GET vers CGI</h1>
+		</header>
 
-	<main>
-		<form action="/cgi-bin/test.py" method="GET">
-			<div class="form-group">
-				<label for="name">*Nom:</label>
-				<input type="text" id="name" name="name" required>
+		<main>
+			<form action="/cgi-bin/test.py" method="GET">
+				<div class="form-group">
+					<label for="name">*Nom:</label>
+					<input type="text" id="name" name="name" required>
+				</div>
+
+				<div class="form-group">
+					<label for="email">*Email:</label>
+					<input type="email" id="email" name="email" required>
+				</div>
+
+				<div class="form-group">
+					<label for="message">Message:</label>
+					<textarea id="message" name="message" rows="4"></textarea>
+				</div>
+
+				<input type="submit" value="Envoyer">
+			</form>
+		</main>
+	</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<meta charset="UTF-8">
+		<title>Minecraft Form</title>
+		<link href="https://fonts.cdnfonts.com/css/minecraft-4" rel="stylesheet">
+		<link rel="stylesheet" href="/styles/style.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>🌍 Serveur Minecraft</h1>
+			<p>Entre ton pseudo Minecraft :</p>
+
+			<form action="/cgi-bin/test.py" method="POST">
+				<input type="text" name="name" placeholder="Steve ou Alex">
+				<br> <br>
+				<button type="submit">Envoyer</button>
+			</form>
+
+			<div>
+				<img src="/styles/images/grass_block.png" alt="Grass Block" class="block">
+				<img src="/styles/images/crafting_table.png" alt="Crafting Table" class="block">
+				<img src="/styles/images/furnace.png" alt="Furnace" class="block">
 			</div>
-			
-			<div class="form-group">
-				<label for="email">*Email:</label>
-				<input type="email" id="email" name="email" required>
-			</div>
-			
-			<div class="form-group">
-				<label for="message">Message:</label>
-				<textarea id="message" name="message" rows="4"></textarea>
-			</div>
-			
-			<input type="submit" value="Envoyer">
-		</form>
-	</main>
-</body>
+		</div>
+	</body>
 </html>
