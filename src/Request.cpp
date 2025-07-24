@@ -76,7 +76,6 @@ void	Request::headersParse(const std::string &line)
 
 void	Request::parse(const std::string &raw_requeste)
 {
-	std::cout << "=== RAW REQUEST ===\n" << raw_requeste << "\n=== END ===" << std::endl;
 	std::istringstream iss(raw_requeste);
 	std::string	line;
 	if (std::getline(iss, line))
@@ -120,4 +119,5 @@ void	Request::printAllToTest()
 	std::cout << "Headers :" << std::endl;
 	for (std::map<std::string, std::string>::const_iterator it = _headers.begin(); it != _headers.end(); ++it)
 		std::cout << it->first << ": " << it->second << std::endl;
+	std::cout << std::endl;
 }

@@ -27,7 +27,7 @@ std::string	cgiExec(const Request &req, std::string script_path)
 		std::ostringstream iss;
 		iss << req.getBody().length();
 		env.push_back("CONTENT_LENGTH=" + iss.str());
-		env.push_back("CONTENT_TYPE=application/x-www-form-urlencoded");
+		env.push_back("CONTENT_TYPE=" + req.getHeaders()["Content-Type"]);
 		env.push_back("REDIRECT_STATUS=200");
 		std::vector<char *> envp;
 		for (size_t i = 0; i < env.size(); i++)
@@ -42,6 +42,8 @@ std::string	cgiExec(const Request &req, std::string script_path)
 	{
 		close(stdin_pipe[0]);
 		close(stdout_pipe[1]);
+		std::cerr << "Body size: " << req.getBody().length() << std::endl;
+		std::cerr << "CONTENT_LENGTH: " << req.getHeaders()["Content-Length"] << std::endl;
 		if (req.getMethod() == "POST" && !req.getBody().empty())
 			write(stdin_pipe[1], req.getBody().c_str(), req.getBody().length());
 		close(stdin_pipe[1]);
