@@ -1,0 +1,33 @@
+body {
+	font-family: Arial, sans-serif;
+	background-color: #f3f3f3;
+	padding: 40px;
+	color: #333;
+}
+h1 {
+	color: #2c3e50;
+}
+.container {
+	background: white;
+	padding: 30px;
+	border-radius: 10px;
+	box-shadow: 0 0 15px rgba(0,0,0,0.1);
+	max-width: 600px;
+	margin: auto;
+	text-align: center;
+}
+p {
+	font-size: 16px;
+}
+p strong {
+	color: #2980b9;
+}
+.error {
+	color: red;
+	font-weight: bold;
+}
+img {
+	margin-top: 15px;
+	border: 2px solid #ccc;
+	border-radius: 5px;
+}

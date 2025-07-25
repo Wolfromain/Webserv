@@ -9,10 +9,23 @@ UPLOAD_DIR = "var/www/styles/uploads"
 print("Content-Type: text/html; charset=utf-8\r\n\r\n")
 
 form = cgi.FieldStorage()
+
+print("""
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Résultat de l'envoi</title>
+    <link rel="stylesheet" href="/styles/python.css">
+</head>
+<body>
+<div class="container">
+<h1>Résultat de l'envoi</h1>
+""")
+
+
 name = form.getvalue("name", "").strip()
 
 print("<html><body>")
-print("<h1>Résultat de l'envoi</h1>")
 
 if not name:
 	print("<p style='color: red;'>Erreur : Pseudo manquant.</p>")
@@ -29,7 +42,8 @@ else:
 	with open(save_path, 'wb') as f:
 		shutil.copyfileobj(fileitem.file, f)
 
-	public_url = f"/uploads/{filename}"
+	public_url = f"/styles/uploads/{filename}"
+
 
 	print(f"<p>Pseudo Minecraft : <strong>{safe_name}</strong></p>")
 	print(f"<p>Image reçue : <strong>{filename}</strong></p>")
