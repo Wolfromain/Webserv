@@ -13,9 +13,10 @@ form = cgi.FieldStorage()
 print("""
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Résultat de l'envoi</title>
-    <link rel="stylesheet" href="/styles/python.css">
+	<meta charset="UTF-8">
+	<title>Résultat de l'envoi</title>
+	<link href="https://fonts.cdnfonts.com/css/minecraft-4" rel="stylesheet">
+	<link rel="stylesheet" href="/styles/python.css">
 </head>
 <body>
 <div class="container">

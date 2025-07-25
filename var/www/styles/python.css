@@ -1,26 +1,34 @@
 body {
-	font-family: Arial, sans-serif;
-	background-color: #f3f3f3;
-	padding: 40px;
-	color: #333;
-}
+	font-family: 'Minecraft', sans-serif;
+	background-image: url("/styles/images/background.png");
+	background-size: cover;
+	background-position: center;
+	color: #00ff00;
+	text-align: center;
+	padding: 100px 20px;
+	margin: 0;
+  }
+  
 h1 {
-	color: #2c3e50;
+	color: #00ff00;
 }
 .container {
-	background: white;
-	padding: 30px;
-	border-radius: 10px;
-	box-shadow: 0 0 15px rgba(0,0,0,0.1);
-	max-width: 600px;
-	margin: auto;
+	background-color: rgba(0, 0, 0, 0.7);
+	padding: 40px;
+	border: 4px solid #00ff00;
+	border-radius: 15px;
+	display: inline-block;
+	max-width: 400px;
+	width: 100%;
+	box-shadow: 0 0 20px #00ff00;
 	text-align: center;
 }
+
 p {
 	font-size: 16px;
 }
 p strong {
-	color: #2980b9;
+	color: #12a8ca;
 }
 .error {
 	color: red;
