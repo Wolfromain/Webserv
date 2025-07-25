@@ -47,7 +47,7 @@ else:
 
 
 	print(f"<p>Pseudo Minecraft : <strong>{safe_name}</strong></p>")
-	print(f"<p>Image reçue : <strong>{filename}</strong></p>")
+	print(f"<p>Image recue : <strong>{filename}</strong></p>")
 	print(f"<p>Image affichée ci-dessous :</p>")
 	print(f'<img src="{public_url}" alt="Image envoyée" width="200">')
 
