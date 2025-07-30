@@ -29,13 +29,16 @@ h1 {
 p {
 	font-size: 16px;
 }
+
 p strong {
 	color: #12a8ca;
 }
+
 .error {
 	color: red;
 	font-weight: bold;
 }
+
 img {
 	margin-top: 15px;
 	border: 2px solid #00ff00;
@@ -43,4 +46,40 @@ img {
 	box-shadow: 0 0 10px #00ff00;
 	width: 75%;
 	height: auto;
+}
+
+.delete-button {
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #ff4444;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	text-decoration: none;
+	font-weight: bold;
+	box-shadow: 0 0 10px #ff4444;
+	cursor: pointer;
+	transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.delete-button:hover {
+	background-color: #cc0000;
+	transform: scale(1.05);
+}
+
+
+.back-button {
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #00ff00;
+	color: black;
+	border: none;
+	border-radius: 8px;
+	text-decoration: none;
+	font-weight: bold;
+	box-shadow: 0 0 10px #00ff00;
+	transition: background-color 0.2s ease;
+}
+.back-button:hover {
+	background-color: #00cc00;
+	color: black;
 }
