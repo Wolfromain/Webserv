@@ -58,13 +58,15 @@ std::string	cgiExec(const Request &req, std::string script_path)
 			pid_t result = waitpid(pid, &status, WNOHANG);
 			if (result == pid)
 				break;
+			if (result == -1)
+				break;
 			if (time(NULL) - start > timeout)
 			{
 				kill(pid, SIGKILL);
 				waitpid(pid, &status, 0);
 				return "504_GATEWAY_TIMEOUT";
 			}
-			usleep(1000000000);
+			usleep(100000);
 		}
 		while ((n = read(stdout_pipe[0], buffer, sizeof(buffer))) > 0)
 			output.write(buffer, n);

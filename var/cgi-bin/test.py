@@ -10,6 +10,11 @@ print("Content-Type: text/html; charset=utf-8\r\n\r\n")
 
 form = cgi.FieldStorage()
 
+# import time
+# print("Content-Type: text/html\r\n\r\n")
+# time.sleep(10)  # 10 secondes pour dépasser ton timeout
+# print("<h1>Réponse après 10 secondes</h1>")
+
 print("""
 <html>
 <head>
