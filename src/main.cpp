@@ -1,10 +1,12 @@
 #include "../include/Server.hpp"
 
+std::vector<Server*> g_servers;
+
 int main()
 {
-
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
+	signal(SIGPIPE, signalHandler);
 
 	Config config;
 	if (!std::ifstream("config/webserv.conf"))
@@ -20,12 +22,11 @@ int main()
 	}
 
 	const std::vector<Server>& servers = config.getServers();
-	std::vector<Server> runningServers;
 	for (size_t i = 0; i < servers.size(); ++i)
 	{
-		runningServers.push_back(Server(servers[i]));
-		runningServers.back().start();
+		Server* server = new Server(servers[i]);
+		g_servers.push_back(server);
+		server->start();
 	}
-
 	return (0);
 }
