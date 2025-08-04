@@ -16,8 +16,17 @@ std::string Reponse::getContentType(const std::string &path)
 		return "text/html";
 	else if (path.find(".css") != std::string::npos)
 		return "text/css";
-	else
-		return "application/octet-stream";
+	else if (path.find(".js") != std::string::npos)
+		return "application/javascript";
+	else if (path.find(".png") != std::string::npos)
+		return "image/png";
+	else if (path.find(".jpg") != std::string::npos || path.find(".jpeg") != std::string::npos)
+		return "image/jpeg";
+	else if (path.find(".gif") != std::string::npos)
+		return "image/gif";
+	else if (path.find(".pdf") != std::string::npos)
+		return "application/pdf";
+	return "application/octet-stream";
 }
 
 void Reponse::handleGET(const Request &req, std::string true_path)
@@ -269,9 +278,6 @@ std::string Reponse::findTruePath(const Server &server, const Location *location
 	return (fullPath);
 }
 
-
-
-
 bool Reponse::isMethodAllowed(const Location *location, const std::string &method)
 {
 	if (!location || location->allow_methods.empty())
@@ -286,3 +292,4 @@ bool Reponse::isMethodAllowed(const Location *location, const std::string &metho
 	}
 	return (false);
 }
+

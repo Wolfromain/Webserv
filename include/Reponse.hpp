@@ -30,6 +30,7 @@ class Reponse
 		void		handlePOST(const Request &req, std::string true_path);
 		void		handleDELETE(std::string true_path);
 		void		handleNoMethod();
+		
 
 		//Locations
 		const Location* matchLocation(const Server &server, const std::string &path);
