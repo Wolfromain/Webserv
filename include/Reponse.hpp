@@ -1,13 +1,14 @@
 #ifndef REPONSE_HPP
-#define REPONSE_HPP
+# define REPONSE_HPP
 
-#include <iostream>
-#include <sstream>
-#include <cstdlib>
-#include <map>
+# include <iostream>
+# include <sstream>
+# include <cstdlib>
+# include <map>
+# include <dirent.h>
 
-#include "Server.hpp"
-#include "CGI.hpp"
+# include "Server.hpp"
+# include "CGI.hpp"
 
 class Request;
 class Server;

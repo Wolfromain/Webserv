@@ -9,11 +9,12 @@ body {
 	text-align: center;
 	padding: 100px 20px;
 	margin: 0;
-  }
-  
+}
+
 h1 {
 	color: #00ff00;
 }
+
 .container {
 	background-color: rgba(0, 0, 0, 0.7);
 	padding: 40px;
@@ -66,7 +67,6 @@ img {
 	transform: scale(1.05);
 }
 
-
 .back-button {
 	display: inline-block;
 	padding: 10px 20px;
@@ -79,6 +79,7 @@ img {
 	box-shadow: 0 0 10px #00ff00;
 	transition: background-color 0.2s ease;
 }
+
 .back-button:hover {
 	background-color: #00cc00;
 	color: black;
