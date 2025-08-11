@@ -38,7 +38,7 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 		{
 			_statusCode = 404;
 			_statusComment = "Not Found";
-			_body = "<h1>404 Not Found</h1>";
+			_body = readFile("var/www/error/404.html");
 			_headers["Content-Type"] = "text/html";
 			return;
 		}
@@ -49,7 +49,7 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 			{
 				_statusCode = 504;
 				_statusComment = "Gateway Timeout";
-				_body = "<h1>504 Gateway Timeout</h1>";
+				_body = readFile("var/www/error/504.html");
 				_headers["Content-Type"] = "text/html";
 				return;
 			}
@@ -64,7 +64,7 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 			{
 				_statusCode = 500;
 				_statusComment = "Internal Server Error";
-				_body = "<h1>500 Internal Server Error</h1>";
+				_body = readFile("var/www/error/500.html");
 				_headers["Content-Type"] = "text/html";
 			}
 			return;
@@ -87,7 +87,7 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 	{
 		_statusCode = 404;
 		_statusComment = "Not Found";
-		_body = "<h1>404 Not Found</h1>";
+		_body = readFile("var/www/error/404.html");
 		_headers["Content-Type"] = "text/html";
 	}
 }
@@ -102,7 +102,7 @@ void	Reponse::handlePOST(const Request &req, std::string true_path)
 		{
 			_statusCode = 404;
 			_statusComment = "Not Found";
-			_body = "<h1>404 Not Found</h1>";
+			_body = readFile("var/www/error/404.html");
 			_headers["Content-Type"] = "text/html";
 			return;
 		}
@@ -113,7 +113,7 @@ void	Reponse::handlePOST(const Request &req, std::string true_path)
 			{
 				_statusCode = 504;
 				_statusComment = "Gateway Timeout";
-				_body = "<h1>504 Gateway Timeout</h1>";
+				_body = readFile("var/www/error/504.html");
 				_headers["Content-Type"] = "text/html";
 				return;
 			}
@@ -189,7 +189,7 @@ void	Reponse::handleDELETE(std::string true_path)
 	{
 		_statusCode = 404;
 		_statusComment = "Not Found";
-		_body = "<h1>404 Not Found</h1>";
+		_body = readFile("var/www/error/404.html");
 	}
 	_headers["Content-Type"] = "text/plain";
 }
@@ -198,7 +198,7 @@ void	Reponse::handleNoMethod()
 {
 		_statusCode = 405;
 		_statusComment = "Method Not Allowed";
-		_body = "<h1>405 Unsuported Method</h1>";
+		_body = readFile("var/www/error/405.html");
 		_headers["Content-Type"] = "text/plain";
 }
 
