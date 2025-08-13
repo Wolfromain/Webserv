@@ -17,7 +17,6 @@
 
 class Request;
 
-std::vector<char *>	handleEnvp(const Request &req, std::string &script_path);
 std::string			cgiExec(const Request &req, std::string script_path);
 
 #endif

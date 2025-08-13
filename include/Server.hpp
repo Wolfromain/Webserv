@@ -41,11 +41,11 @@ class Server
 		Server(const Server& conf);
 		~Server();
 		int listen_port;
-		std::string server_name; //Soucis ;
-		std::string root; //Pas dispo
+		std::string server_name;
+		std::string root;
 		std::map<int, std::string> error_pages;
 		std::vector<Location> locations;
-		size_t max_body_size; // Soucis
+		size_t max_body_size;
 
 		void start();
 		void stop();

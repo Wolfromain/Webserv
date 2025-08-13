@@ -23,7 +23,6 @@ class Reponse
 	public :
 		Reponse();
 		~Reponse();
-		// std::string	handleRequest(const Request &req);
 		std::string getContentType(const std::string &path);
 		std::string	handleRequest(const Request &req, const Server &server);
 		void		handleGET(const Request &req, std::string true_path);
