@@ -1,7 +1,7 @@
 body {
 	font-family: 'Minecraft', sans-serif;
-	/* background-image: url("/styles/images/background.png"); */
-	background-image: url("/styles/images/background2.png");
+	background-image: url("/styles/images/background.png");
+	/* background-image: url("/styles/images/background2.png"); */
 	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
