@@ -30,7 +30,5 @@ void signalHandler(int signum)
 		exit(0);
 	}
 	else if (signum == SIGPIPE)
-	{
 		return;
-	}
 }

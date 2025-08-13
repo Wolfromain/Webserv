@@ -5,7 +5,6 @@
 # include <sstream>
 # include <cstdlib>
 # include <map>
-# include <dirent.h>
 
 # include "Server.hpp"
 # include "CGI.hpp"
@@ -29,7 +28,7 @@ class Reponse
 		std::string	handleRequest(const Request &req, const Server &server);
 		void		handleGET(const Request &req, std::string true_path);
 		void		handlePOST(const Request &req, std::string true_path);
-		void		handleDELETE(std::string true_path);
+		void		handleDELETE(const Request &req, std::string true_path);
 		void		handleNoMethod();
 		
 

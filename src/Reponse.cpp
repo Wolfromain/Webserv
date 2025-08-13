@@ -189,23 +189,57 @@ void	Reponse::handlePOST(const Request &req, std::string true_path)
 	}
 }
 
-void	Reponse::handleDELETE(std::string true_path)
+void	Reponse::handleDELETE(const Request &req, std::string true_path)
 {
-	if (remove(true_path.c_str()) == 0)
+	if (true_path.find(".py") != std::string::npos && true_path.find("/cgi-bin/") != std::string::npos)
 	{
-		_statusCode = 204;
+		struct stat sb;
+		if (stat(true_path.c_str(), &sb) != 0)
+		{
+			_statusCode = 404;
+			_statusComment = "Not Found";
+			_body = readFile("var/www/error/404.html");
+			if (_body.empty())
+				_body = "<h1> 404 Not Found </h1>";
+			_headers["Content-Type"] = "text/html";
+			return;
+		}
+
+		std::string output = cgiExec(req, true_path);
+		if (output == "504_GATEWAY_TIMEOUT")
+		{
+			_statusCode = 504;
+			_statusComment = "Gateway Timeout";
+			_body = readFile("var/www/error/504.html");
+			if (_body.empty())
+				_body = "<h1> 504 Gateway Timeout </h1>";
+			_headers["Content-Type"] = "text/html";
+			return;
+		}
+
+		_statusCode = 200;
 		_statusComment = "OK";
-		_body = "File deleted";
+		_body = output;
+		_headers["Content-Type"] = "text/html";
 	}
 	else
 	{
-		_statusCode = 404;
-		_statusComment = "Not Found";
-		_body = readFile("var/www/error/404.html");
-		if (_body.empty())
-			_body = "<h1> 404 Not Found </h1>";
+		if (remove(true_path.c_str()) == 0)
+		{
+			_statusCode = 204;
+			_statusComment = "OK";
+			_body = "File deleted";
+		}
+		else
+		{
+			_statusCode = 404;
+			_statusComment = "Not Found";
+			_body = readFile("var/www/error/404.html");
+			if (_body.empty())
+				_body = "<h1> 404 Not Found </h1>";
+		}
+		_headers["Content-Type"] = "text/plain";
 	}
-	_headers["Content-Type"] = "text/plain";
 }
 
 void	Reponse::handleNoMethod()
@@ -230,7 +264,7 @@ std::string	Reponse::handleRequest(const Request &req, const Server &server)
 	else if (req.getMethod() == "POST")
 		this->handlePOST(req, true_path);
 	else if (req.getMethod() == "DELETE")
-		this->handleDELETE(true_path);
+		this->handleDELETE(req, true_path);
 	else
 		this->handleNoMethod();
 	std::ostringstream oss;
