@@ -220,7 +220,7 @@ void	Reponse::handleDELETE(const Request &req, std::string true_path)
 		_statusCode = 200;
 		_statusComment = "OK";
 		_body = output;
-		_headers["Content-Type"] = "text/html";
+		_headers["Content-Type"] = "text/html; charset=utf-8";
 	}
 	else
 	{
