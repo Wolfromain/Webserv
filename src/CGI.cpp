@@ -2,7 +2,7 @@
 
 std::string	cgiExec(const Request &req, std::string script_path)
 {
-	if (req.getPath().find("/cgi-bin/", 0) != 0 || req.getPath().find(".py") == std::string::npos)
+	if (req.getPath().find("/cgi-bin/", 0) != 0 || req.getPath().find(".py") == std::string::npos || req.getPath().find(".py") == std::string::npos)
 		return ("");
 	int		stdin_pipe[2];
 	int		stdout_pipe[2];
