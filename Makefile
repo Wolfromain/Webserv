@@ -9,7 +9,6 @@ OBJ_DIR = obj
 
 SRC_FILES = main.cpp Server.cpp Request.cpp Reponse.cpp utils.cpp Config.cpp CGI.cpp\
 
-
 SRC = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 
 MANDATORY_SRCS = $(SRC)
