@@ -31,7 +31,7 @@ std::string Reponse::getContentType(const std::string &path)
 
 void Reponse::handleGET(const Request &req, std::string true_path)
 {
-	if (true_path.find(".py") != std::string::npos && true_path.find("/cgi-bin/") != std::string::npos)
+	if ((true_path.find(".php") != std::string::npos || true_path.find(".py") != std::string::npos) && true_path.find("/cgi-bin/") != std::string::npos)
 	{
 		struct stat sb;
 		if (stat(true_path.c_str(), &sb) != 0)
@@ -103,7 +103,7 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 
 void	Reponse::handlePOST(const Request &req, std::string true_path)
 {
-	if (true_path.find(".py") != std::string::npos && true_path.find("/cgi-bin/") != std::string::npos)
+	if ((true_path.find(".php") != std::string::npos || true_path.find(".py") != std::string::npos) && true_path.find("/cgi-bin/") != std::string::npos)
 	{
 		struct stat sb;
 		if (stat(true_path.c_str(), &sb) != 0)
@@ -191,7 +191,7 @@ void	Reponse::handlePOST(const Request &req, std::string true_path)
 
 void	Reponse::handleDELETE(const Request &req, std::string true_path)
 {
-	if (true_path.find(".py") != std::string::npos && true_path.find("/cgi-bin/") != std::string::npos)
+	if ((true_path.find(".php") != std::string::npos || true_path.find(".py") != std::string::npos) && true_path.find("/cgi-bin/") != std::string::npos)
 	{
 		struct stat sb;
 		if (stat(true_path.c_str(), &sb) != 0)

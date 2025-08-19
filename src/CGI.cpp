@@ -2,7 +2,7 @@
 
 std::string	cgiExec(const Request &req, std::string script_path)
 {
-	if (req.getPath().find("/cgi-bin/", 0) != 0 || req.getPath().find(".py") == std::string::npos || req.getPath().find(".py") == std::string::npos)
+	if (req.getPath().find("/cgi-bin/", 0) != 0 && (req.getPath().find(".php") == std::string::npos || req.getPath().find(".py") == std::string::npos))
 		return ("");
 	int		stdin_pipe[2];
 	int		stdout_pipe[2];
@@ -20,7 +20,7 @@ std::string	cgiExec(const Request &req, std::string script_path)
 		close(stdout_pipe[0]);
 
 		std::vector<std::string> env;
-		env.push_back("GATEWAY_INTERFACE=CGI/1.1");
+		env.push_back("GATEWAY_INTERFACE=CGI/1.1");	
 		env.push_back("SCRIPT_FILENAME=" + script_path);
 		env.push_back("REQUEST_METHOD=" + req.getMethod());
 		env.push_back("QUERY_STRING=" + req.getQuerry_string());
@@ -33,9 +33,16 @@ std::string	cgiExec(const Request &req, std::string script_path)
 		for (size_t i = 0; i < env.size(); i++)
 			envp.push_back(const_cast<char *>(env[i].c_str()));
 		envp.push_back(NULL);
-
-		char *argv[] = { const_cast<char *>("python3"), const_cast<char *>(script_path.c_str()), NULL };
-		execve("/usr/bin/python3", argv, &envp[0]);
+		if (req.getPath().find(".py") != std::string::npos)
+		{
+			char *argv[] = { const_cast<char *>("python3"), const_cast<char *>(script_path.c_str()), NULL };
+			execve("/usr/bin/python3", argv, &envp[0]);
+		}
+		else if (req.getPath().find(".php") != std::string::npos)
+		{
+			char *argv[] = { const_cast<char *>("php-cgi"), const_cast<char *>(script_path.c_str()), NULL };
+			execve("/usr/bin/php-cgi", argv, &envp[0]);
+		}
 		exit(1);
 	}
 	else
@@ -68,8 +75,13 @@ std::string	cgiExec(const Request &req, std::string script_path)
 			}
 			usleep(100000);
 		}
+		std::cout << "||||||||||||||||||||||||||||||||||||||||||||||||||||||| " << std::endl;
 		while ((n = read(stdout_pipe[0], buffer, sizeof(buffer))) > 0)
+		{
+			std::cout << "READ" << std::endl;
 			output.write(buffer, n);
+		}
+		std::cout << output.str() << std::endl;
 		close(stdout_pipe[0]);
 		return(output.str());
 	}
