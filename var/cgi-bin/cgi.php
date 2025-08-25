@@ -1,7 +1,7 @@
 #!/usr/bin/php-cgi
 <?php
-header('Content-Type: text/html; charset=utf-8');
-
+// header('Content-Typey: text/html; charset=utf-8');
+// echo "\r\n\r\n";
 $method = $_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN';
 $query = $_SERVER['QUERY_STRING'] ?? '';
 $length = $_SERVER['CONTENT_LENGTH'] ?? 0;
@@ -22,7 +22,7 @@ $length = $_SERVER['CONTENT_LENGTH'] ?? 0;
             <pre>
             <?php 
                 if (!empty($_POST)) {
-                    print_r($_POST);
+                    echo htmlspecialchars($_POST['name']);
                 } else {
                     echo "Aucune donnée POST reçue";
                 }
@@ -35,7 +35,7 @@ $length = $_SERVER['CONTENT_LENGTH'] ?? 0;
             <pre>
             <?php 
                 if (!empty($_GET)) {
-                    print_r($_GET);
+                    echo htmlspecialchars($_GET['name']);
                 } else {
                     echo "Aucune donnée GET reçue";
                 }
@@ -53,7 +53,7 @@ $length = $_SERVER['CONTENT_LENGTH'] ?? 0;
         ?>
         </pre>
         
-        <a href="/cgi.html">Retour au formulaire</a>
+        <a href="/cgi.html" class="btn"><button type="button">Retour</button></a>
     </div>
 </body>
 </html>

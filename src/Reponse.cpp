@@ -59,10 +59,43 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 			}
 			else if (!output.empty())
 			{
-				_statusCode = 200;
-				_statusComment = "OK";
-				_body = output;
-				_headers["Content-Type"] = "text/html";
+				std::string headers_part, body_part;
+				size_t pos = output.find("\r\n\r\n");
+				if (pos != std::string::npos)
+				{
+					headers_part = output.substr(0, pos);
+					body_part = output.substr(pos + 4);
+
+					std::map<std::string, std::string> headers;
+					std::istringstream stream(headers_part);
+					std::string line;
+
+					while (std::getline(stream, line))
+					{
+						if (line.size() >= 2 && line[line.size()-1] == '\r')
+							line = line.substr(0, line.size()-1);
+
+						size_t sep = line.find(": ");
+						if (sep != std::string::npos)
+						{
+							std::string key = line.substr(0, sep);
+							std::string value = line.substr(sep + 2);
+							headers[key] = value;
+						}
+					}
+
+					_statusCode = 200;
+					_statusComment = "OK";
+					_body = body_part;
+					_headers = headers;
+				}
+				else
+				{
+					_statusCode = 200;
+					_statusComment = "OK";
+					_body = output;
+					_headers["Content-Type"] = "text/html";
+				}
 			}
 			else
 			{
@@ -185,6 +218,33 @@ void	Reponse::handlePOST(const Request &req, std::string true_path)
 			_statusComment = status_text;
 			_body = body_part;
 			_headers = headers;
+		}
+	}
+	if (!req.getBody().empty() && true_path.find("/cgi-bin/") == std::string::npos)
+	{
+		if (true_path[true_path.length() - 1] == '/')
+		{
+			std::string tmpPath = "index.html" + true_path;
+			true_path = tmpPath;
+		}
+
+		std::string buffer = readFile(true_path);
+		if (!buffer.empty())
+		{
+			_statusCode = 200;
+			_statusComment = "OK";
+			_body = buffer;
+			std::string contentType = getContentType(true_path);
+			_headers["Content-Type"] = contentType;
+		}
+		else
+		{
+			_statusCode = 404;
+			_statusComment = "Not Found";
+			_body = readFile("var/www/error/404.html");
+			if (_body.empty())
+				_body = "<h1> 404 Not Found </h1>";
+			_headers["Content-Type"] = "text/html";
 		}
 	}
 }

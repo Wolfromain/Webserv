@@ -2,8 +2,9 @@
 
 std::string	cgiExec(const Request &req, std::string script_path)
 {
-	if (req.getPath().find("/cgi-bin/", 0) != 0 && (req.getPath().find(".php") == std::string::npos || req.getPath().find(".py") == std::string::npos))
-		return ("");
+	if (req.getPath().find("/cgi-bin/") == std::string::npos || 
+		(req.getPath().find(".php") == std::string::npos && req.getPath().find(".py") == std::string::npos))
+		return "";
 	int		stdin_pipe[2];
 	int		stdout_pipe[2];
 
@@ -24,10 +25,18 @@ std::string	cgiExec(const Request &req, std::string script_path)
 		env.push_back("SCRIPT_FILENAME=" + script_path);
 		env.push_back("REQUEST_METHOD=" + req.getMethod());
 		env.push_back("QUERY_STRING=" + req.getQuerry_string());
-		std::ostringstream iss;
-		iss << req.getBody().length();
-		env.push_back("CONTENT_LENGTH=" + iss.str());
-		env.push_back("CONTENT_TYPE=" + req.getHeaders()["Content-Type"]);
+		if (req.getMethod() == "GET")
+		{
+			env.push_back("REQUEST_URI=" + req.getPath() + "?" + req.getQuerry_string());
+			env.push_back("SCRIPT_NAME=" + req.getPath());
+		}
+		if (req.getMethod() == "POST")
+		{
+			std::ostringstream iss;
+			iss << req.getBody().length();
+			env.push_back("CONTENT_LENGTH=" + iss.str());
+			env.push_back("CONTENT_TYPE=" + req.getHeaders()["Content-Type"]);
+		}
 		env.push_back("REDIRECT_STATUS=200");
 		std::vector<char *> envp;
 		for (size_t i = 0; i < env.size(); i++)

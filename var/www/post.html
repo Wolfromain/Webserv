@@ -10,11 +10,9 @@
 <body>
 	<main class="container">
 		<h1>POST Minecraft</h1>
-		<form method="POST" enctype="multipart/form-data">
+		<form method="POST" action="/submit">
 			<label for="name">Pseudo Minecraft :</label><br>
 			<input type="text" name="name" id="name" placeholder="Ton pseudo Minecraft" required><br><br>
-			<label for="imageUpload">Importe une image :</label><br>
-			<input type="file" name="image" id="imageUpload" accept="image/*"><br><br>
 			<button type="submit">Envoyer</button>
 		</form>
 		<br>
