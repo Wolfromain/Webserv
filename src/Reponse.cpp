@@ -31,6 +31,45 @@ std::string Reponse::getContentType(const std::string &path)
 
 void Reponse::handleGET(const Request &req, std::string true_path)
 {
+	if (req.getPath() == "/submit")
+	{
+		std::string filename;
+		std::istringstream iss(req.getQuerry_string());
+		std::string token;
+		while (std::getline(iss, token, '&'))
+		{
+			size_t eq = token.find('=');
+			if (eq != std::string::npos)
+			{
+				std::string key = token.substr(0, eq);
+				std::string val = token.substr(eq + 1);
+				if (key == "filename")
+					filename = val;
+			}
+		}
+
+		std::string file_path = "var/www/" + filename;
+		struct stat sb;
+		if (stat(file_path.c_str(), &sb) != 0)
+		{
+			_statusCode = 404;
+			_statusComment = "Not Found";
+			_body = readFile("var/www/error/404.html");
+			if (_body.empty())
+				_body = "<h1> 404 Not Found </h1>";
+			_headers["Content-Type"] = "text/html";
+			return;
+		}
+
+		std::string file_content = readFile(file_path);
+		_body = "<h2>Résultat GET</h2>";
+		_body += "<h3>Contenu du fichier " + filename + " :</h3><pre>" + file_content + "</pre>";
+		_statusCode = 200;
+		_statusComment = "OK";
+		_headers["Content-Type"] = "text/html";
+		return;
+	}
+
 	if ((true_path.find(".php") != std::string::npos || true_path.find(".py") != std::string::npos) && true_path.find("/cgi-bin/") != std::string::npos)
 	{
 		struct stat sb;
