@@ -62,11 +62,11 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 		}
 
 		std::string file_content = readFile(file_path);
-		_body = "<h2>Résultat GET</h2>";
-		_body += "<h3>Contenu du fichier " + filename + " :</h3><pre>" + file_content + "</pre>";
+		_body = "<h2>Resultat GET</h2>";
+		_body += "<h3>Contenu du fichier " + filename + " :</h3><p>" + file_content + "</p>";
 		_statusCode = 200;
 		_statusComment = "OK";
-		_headers["Content-Type"] = "text/html";
+		_headers["Content-Type"] = "text/html"; //ca permet de ne pas executer mais ca force l'affichage. Mais je pense pas que ce soit le bon truc a faire
 		return;
 	}
 

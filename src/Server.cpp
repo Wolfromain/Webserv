@@ -139,6 +139,7 @@ void Server::start()
 			}
 		}
 	}
+	fds.clear();
 	stop();
 }
 
