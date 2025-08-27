@@ -174,9 +174,10 @@ void	Reponse::handlePOST(const Request &req, std::string true_path)
 			}
 			int status_code;
 			std::string status_text = "OK";
-
+			
 			while (std::getline(stream, line))
 			{
+				std::cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << std::endl;
 				if (line.size() >= 2 && line[line.size()-1] == '\r')
 					line = line.substr(0, line.size()-1);
 
@@ -253,19 +254,9 @@ void	Reponse::handleDELETE(const Request &req, std::string true_path)
 		}
 		else
 			errorHandler(404);
-		_headers["Content-Type"] = "text/plain";
 	}
 }
 
-void	Reponse::handleNoMethod()
-{
-		_statusCode = 405;
-		_statusComment = "Method Not Allowed";
-		_body = readFile("var/www/error/405.html");
-		if (_body.empty())
-			_body = "<h1> 405 Method Not Allowed </h1>";
-		_headers["Content-Type"] = "text/plain";
-}
 
 std::string	Reponse::handleRequest(const Request &req, const Server &server)
 {
@@ -274,19 +265,16 @@ std::string	Reponse::handleRequest(const Request &req, const Server &server)
 	std::string true_path = findTruePath(server, location, req.getPath());
 	if (req.getMethod() == "413")
 		errorHandler(413);
+	else if (!isMethodAllowed(location, req.getMethod()))
+		errorHandler(405);
+	else if (req.getMethod() == "GET")
+		this->handleGET(req, true_path);
+	else if (req.getMethod() == "POST")
+		this->handlePOST(req, true_path);
+	else if (req.getMethod() == "DELETE")
+		this->handleDELETE(req, true_path);
 	else
-	{
-		if (!isMethodAllowed(location, req.getMethod()))
-			this->handleNoMethod();
-		else if (req.getMethod() == "GET")
-			this->handleGET(req, true_path);
-		else if (req.getMethod() == "POST")
-			this->handlePOST(req, true_path);
-		else if (req.getMethod() == "DELETE")
-			this->handleDELETE(req, true_path);
-		else
-			this->handleNoMethod();
-	}
+		errorHandler(501);
 	std::ostringstream oss;
 	oss << _body.size();
 	_headers["Content-Length"] = oss.str();
@@ -361,6 +349,8 @@ bool Reponse::isMethodAllowed(const Location *location, const std::string &metho
 			return (true);
 		++it;
 	}
+	if (method != "GET" && method != "POST" && method != "DELETE")
+		return (true);
 	return (false);
 }
 
@@ -379,10 +369,10 @@ void Reponse::errorHandler(int error)
 	else if (error == 405)
 	{
 		_statusCode = 405;
-		_statusComment = "Method Not Allowed";
+		_statusComment = "Method not allow";
 		_body = readFile("var/www/error/405.html");
 		if (_body.empty())
-			_body = "<h1> 405 Method Not Allowed </h1>";
+			_body = "<h1> 405 Method not allow </h1>";
 		_headers["Content-Type"] = "text/plain";
 		return;
 	}
@@ -398,7 +388,7 @@ void Reponse::errorHandler(int error)
 		return;
 	}
 
-	else if (error == 501)
+	else if (error == 504)
 	{
 		_statusCode = 504;
 		_statusComment = "Gateway Timeout";
@@ -418,5 +408,14 @@ void Reponse::errorHandler(int error)
 			_body = "<h1> 413 Payload Too Large </h1>";
 		_headers["Content-Type"] = "text/html";
 		return;
+	}
+	else if (error == 501)
+	{
+		_statusCode = 501;
+		_statusComment = "Method not implemented";
+		_body = readFile("var/www/error/501.html");
+		if (_body.empty())
+			_body = "<h1> 501 Method not implemented </h1>";
+		_headers["Content-Type"] = "text/plain";
 	}
 }

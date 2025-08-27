@@ -84,13 +84,11 @@ std::string	cgiExec(const Request &req, std::string script_path)
 			}
 			usleep(100000);
 		}
-		std::cout << "||||||||||||||||||||||||||||||||||||||||||||||||||||||| " << std::endl;
 		while ((n = read(stdout_pipe[0], buffer, sizeof(buffer))) > 0)
 		{
-			std::cout << "READ" << std::endl;
 			output.write(buffer, n);
 		}
-		std::cout << output.str() << std::endl;
+		// std::cout << output.str() << std::endl;
 		close(stdout_pipe[0]);
 		return(output.str());
 	}

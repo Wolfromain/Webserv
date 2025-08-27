@@ -110,6 +110,8 @@ void Server::start()
 
 					size_t body_start = header_end + 4;
 					size_t body_received = request_data.size() - body_start;
+					// if (body_received < content_length)
+					// 	continue;
 					while (body_received < content_length)
 					{
 						is_read = read(fds[i].fd, buffer, sizeof(buffer));
