@@ -8,6 +8,9 @@
 #include <map>
 
 # include "Server.hpp"
+# include "Reponse.hpp"
+
+class Server;
 
 class Request
 {
@@ -19,6 +22,7 @@ class Request
 		std::string	_querry_string;
 		std::string	_body;
 		std::map<std::string, std::string> _headers;
+
 	public :
 		Request();
 		~Request();
@@ -30,7 +34,7 @@ class Request
 		std::string	getBody() const;
 		std::map<std::string, std::string>	getHeaders() const;
 
-		void		parse(const std::string &raw_request);
+		void		parse(const std::string &raw_requeste, const Server &server);
 		void		methodParse(const std::string &line);
 		void		headersParse(const std::string &line);
 		void		printAllToTest();

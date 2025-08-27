@@ -82,7 +82,6 @@ void Server::start()
 					char buffer[30720];
 					std::string request_data;
 					int is_read = 0;
-					// 1. Lire tout ce qui est dispo (headers + body partiel)
 					is_read = read(fds[i].fd, buffer, sizeof(buffer));
 					if (is_read < 0)
 					{
@@ -94,14 +93,12 @@ void Server::start()
 					}
 					request_data.append(buffer, is_read);
 
-					// 2. Trouver la fin des headers
 					size_t header_end = request_data.find("\r\n\r\n");
 					if (header_end == std::string::npos)
 					{
 						continue;
 					}
 
-					// 3. Récupérer Content-Length
 					size_t content_length = 0;
 					size_t pos = request_data.find("Content-Length:");
 					if (pos != std::string::npos)
@@ -111,7 +108,6 @@ void Server::start()
 						content_length = atoi(len_str.c_str());
 					}
 
-					// 4. Calculer combien d'octets il manque pour le body
 					size_t body_start = header_end + 4;
 					size_t body_received = request_data.size() - body_start;
 					while (body_received < content_length)
@@ -122,9 +118,8 @@ void Server::start()
 						body_received = request_data.size() - body_start;
 					}
 
-					// 5. Passer la requête complète à Request::parse
 					Request request;
-					request.parse(request_data);
+					request.parse(request_data, *this);
 					request.printAllToTest();
 
 					Reponse rep;

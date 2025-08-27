@@ -11,6 +11,7 @@
 
 class Request;
 class Server;
+struct Location;
 
 class Reponse
 {
@@ -35,8 +36,7 @@ class Reponse
 		const Location* matchLocation(const Server &server, const std::string &path);
 		std::string findTruePath(const Server &server, const Location *location, const std::string &path);
 		bool isMethodAllowed(const Location *location, const std::string &method);
-
-
+		void errorHandler(int error);
 };
 
 #endif

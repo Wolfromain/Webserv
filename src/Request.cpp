@@ -74,9 +74,9 @@ void	Request::headersParse(const std::string &line)
 
 }
 
-void	Request::parse(const std::string &raw_requeste)
+void	Request::parse(const std::string &raw_request, const Server &server)
 {
-	std::istringstream iss(raw_requeste);
+	std::istringstream iss(raw_request);
 	std::string	line;
 	if (std::getline(iss, line))
 	{
@@ -95,8 +95,12 @@ void	Request::parse(const std::string &raw_requeste)
 	std::string	isContLen = _headers["Content-Length"];
 	int	len = 0;
 	if (!isContLen.empty())
+	{
 		len = atoi(isContLen.c_str());
-	if (len > 0)
+		if ((const size_t)len > server.max_body_size)
+			std::cout << std::endl; //changer en error 413
+	}
+		if (len > 0)
 	{
 		for(int i = 0; i < len; i++)
 		{

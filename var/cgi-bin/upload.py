@@ -7,7 +7,7 @@ import sys
 import urllib.parse
 
 
-UPLOAD_DIR = "var/www/styles/uploads"
+UPLOAD_DIR = "var/www/uploads"
 
 request_method = os.environ.get("REQUEST_METHOD", "GET")
 
@@ -69,7 +69,7 @@ else:
 	with open(save_path, 'wb') as f:
 		shutil.copyfileobj(fileitem.file, f)
 		
-	public_url = f"/styles/uploads/{filename}"
+	public_url = f"/uploads/{filename}"
 		
 	print(f"<p>Pseudo Minecraft : <strong>{safe_name}</strong></p>")
 	print(f"<p>Image reçue : <strong>{filename}</strong></p>")
@@ -82,7 +82,7 @@ else:
 	<script>
 	function deleteImage(filename) {{
 		if (confirm('Êtes-vous sûr de vouloir supprimer cette image ?')) {{
-			fetch('/cgi-bin/test.py?file=' + encodeURIComponent(filename), {{
+			fetch('/cgi-bin/upload.py?file=' + encodeURIComponent(filename), {{
 				method: 'DELETE'
 			}})
 			.then(response => response.text())

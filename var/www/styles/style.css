@@ -20,6 +20,7 @@ body {
 	max-width: 400px;
 	width: 100%;
 	box-shadow: 0 0 20px #00ff00;
+	text-align: center;
 }
 
 input[type="text"],
@@ -34,6 +35,13 @@ input[type="file"] {
 	color: #00ff00;
 	text-align: center;
 }
+
+.env-vars {
+	text-align: center;
+	font-family: monospace;
+	white-space: pre-wrap;
+}
+
 
 button {
 	font-family: 'Minecraft', sans-serif;

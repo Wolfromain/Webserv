@@ -51,22 +51,14 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 		std::string file_path = "var/www/" + filename;
 		struct stat sb;
 		if (stat(file_path.c_str(), &sb) != 0)
-		{
-			_statusCode = 404;
-			_statusComment = "Not Found";
-			_body = readFile("var/www/error/404.html");
-			if (_body.empty())
-				_body = "<h1> 404 Not Found </h1>";
-			_headers["Content-Type"] = "text/html";
-			return;
-		}
+			errorHandler(404);
 
 		std::string file_content = readFile(file_path);
 		_body = "<h2>Resultat GET</h2>";
 		_body += "<h3>Contenu du fichier " + filename + " :</h3><p>" + file_content + "</p>";
 		_statusCode = 200;
 		_statusComment = "OK";
-		_headers["Content-Type"] = "text/html"; //ca permet de ne pas executer mais ca force l'affichage. Mais je pense pas que ce soit le bon truc a faire
+		_headers["Content-Type"] = "text/html; charset=utf-8";
 		return;
 	}
 
@@ -74,28 +66,12 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 	{
 		struct stat sb;
 		if (stat(true_path.c_str(), &sb) != 0)
-		{
-			_statusCode = 404;
-			_statusComment = "Not Found";
-			_body = readFile("var/www/error/404.html");
-			if (_body.empty())
-				_body = "<h1> 404 Not Found </h1>";
-			_headers["Content-Type"] = "text/html";
-			return;
-		}
+			errorHandler(404);
 		else
 		{
 			std::string output = cgiExec(req, true_path); 
 			if (output == "504_GATEWAY_TIMEOUT")
-			{
-				_statusCode = 504;
-				_statusComment = "Gateway Timeout";
-				_body = readFile("var/www/error/504.html");
-				if (_body.empty())
-					_body = "<h1> 504 Gateway Timeout </h1>";
-				_headers["Content-Type"] = "text/html";
-				return;
-			}
+				errorHandler(504);
 			else if (!output.empty())
 			{
 				std::string headers_part, body_part;
@@ -137,14 +113,7 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 				}
 			}
 			else
-			{
-				_statusCode = 500;
-				_statusComment = "Internal Server Error";
-				_body = readFile("var/www/error/500.html");
-				if (_body.empty())
-					_body = "<h1> 500 Internal Server Error </h1>";
-				_headers["Content-Type"] = "text/html";
-			}
+				errorHandler(500);
 			return;
 		}
 	}
@@ -162,14 +131,7 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 		_headers["Content-Type"] = contentType;
 	}
 	else
-	{
-		_statusCode = 404;
-		_statusComment = "Not Found";
-		_body = readFile("var/www/error/404.html");
-		if (_body.empty())
-			_body = "<h1> 404 Not Found </h1>";
-		_headers["Content-Type"] = "text/html";
-	}
+		errorHandler(404);
 }
 
 
@@ -179,28 +141,12 @@ void	Reponse::handlePOST(const Request &req, std::string true_path)
 	{
 		struct stat sb;
 		if (stat(true_path.c_str(), &sb) != 0)
-		{
-			_statusCode = 404;
-			_statusComment = "Not Found";
-			_body = readFile("var/www/error/404.html");
-			if (_body.empty())
-				_body = "<h1> 404 Not Found </h1>";
-			_headers["Content-Type"] = "text/html";
-			return;
-		}
+			errorHandler(404);
 		else
 		{
 			std::string output = cgiExec(req, true_path);
 			if (output == "504_GATEWAY_TIMEOUT")
-			{
-				_statusCode = 504;
-				_statusComment = "Gateway Timeout";
-				_body = readFile("var/www/error/504.html");
-				if (_body.empty())
-					_body = "<h1> 504 Gateway Timout </h1>";
-				_headers["Content-Type"] = "text/html";
-				return;
-			}
+				errorHandler(504);
 			std::string headers_part, body_part;
 			size_t pos = output.find("\r\n\r\n");
 			if (pos != std::string::npos)
@@ -277,14 +223,7 @@ void	Reponse::handlePOST(const Request &req, std::string true_path)
 			_headers["Content-Type"] = contentType;
 		}
 		else
-		{
-			_statusCode = 404;
-			_statusComment = "Not Found";
-			_body = readFile("var/www/error/404.html");
-			if (_body.empty())
-				_body = "<h1> 404 Not Found </h1>";
-			_headers["Content-Type"] = "text/html";
-		}
+			errorHandler(404);
 	}
 }
 
@@ -294,28 +233,11 @@ void	Reponse::handleDELETE(const Request &req, std::string true_path)
 	{
 		struct stat sb;
 		if (stat(true_path.c_str(), &sb) != 0)
-		{
-			_statusCode = 404;
-			_statusComment = "Not Found";
-			_body = readFile("var/www/error/404.html");
-			if (_body.empty())
-				_body = "<h1> 404 Not Found </h1>";
-			_headers["Content-Type"] = "text/html";
-			return;
-		}
+			errorHandler(404);
 
 		std::string output = cgiExec(req, true_path);
 		if (output == "504_GATEWAY_TIMEOUT")
-		{
-			_statusCode = 504;
-			_statusComment = "Gateway Timeout";
-			_body = readFile("var/www/error/504.html");
-			if (_body.empty())
-				_body = "<h1> 504 Gateway Timeout </h1>";
-			_headers["Content-Type"] = "text/html";
-			return;
-		}
-
+			errorHandler(504);
 		_statusCode = 200;
 		_statusComment = "OK";
 		_body = output;
@@ -330,13 +252,7 @@ void	Reponse::handleDELETE(const Request &req, std::string true_path)
 			_body = "File deleted";
 		}
 		else
-		{
-			_statusCode = 404;
-			_statusComment = "Not Found";
-			_body = readFile("var/www/error/404.html");
-			if (_body.empty())
-				_body = "<h1> 404 Not Found </h1>";
-		}
+			errorHandler(404);
 		_headers["Content-Type"] = "text/plain";
 	}
 }
@@ -380,6 +296,7 @@ std::string	Reponse::handleRequest(const Request &req, const Server &server)
 	
 	return (rep);
 }
+
 
 const Location *Reponse::matchLocation(const Server &server, const std::string &path)
 {
@@ -442,3 +359,59 @@ bool Reponse::isMethodAllowed(const Location *location, const std::string &metho
 	return (false);
 }
 
+void Reponse::errorHandler(int error)
+{
+	if (error == 404)
+	{
+		_statusCode = 404;
+		_statusComment = "Not Found";
+		_body = readFile("var/www/error/404.html");
+		if (_body.empty())
+			_body = "<h1> 404 Not Found </h1>";
+		return;
+	}
+
+	else if (error == 405)
+	{
+		_statusCode = 405;
+		_statusComment = "Method Not Allowed";
+		_body = readFile("var/www/error/405.html");
+		if (_body.empty())
+			_body = "<h1> 405 Method Not Allowed </h1>";
+		_headers["Content-Type"] = "text/plain";
+		return;
+	}
+
+	else if (error == 500)
+	{
+		_statusCode = 500;
+		_statusComment = "Internal Server Error";
+		_body = readFile("var/www/error/500.html");
+		if (_body.empty())
+			_body = "<h1> 500 Internal Server Error </h1>";
+		_headers["Content-Type"] = "text/html";
+		return;
+	}
+
+	else if (error == 501)
+	{
+		_statusCode = 504;
+		_statusComment = "Gateway Timeout";
+		_body = readFile("var/www/error/504.html");
+		if (_body.empty())
+			_body = "<h1> 504 Gateway Timeout </h1>";
+		_headers["Content-Type"] = "text/html";
+		return;
+	}
+
+	else if (error == 413)
+	{
+		_statusCode = 413;
+		_statusComment = "Payload Too Large";
+		_body = readFile("var/www/error/413.html");
+		if (_body.empty())
+			_body = "<h1> 413 Payload Too Large </h1>";
+		_headers["Content-Type"] = "text/html";
+		return;
+	}
+}
