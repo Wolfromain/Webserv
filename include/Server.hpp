@@ -26,6 +26,10 @@ struct Location
 	std::string cgi_extension;
 	std::vector<std::string> allow_methods;
 	bool autoindex;
+	bool hasRedirect;
+	int redirectCode;
+	std::string redirectPath;
+	Location() : hasRedirect(false), redirectCode(0) {}
 };
 
 class Server

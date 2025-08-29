@@ -33,7 +33,12 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 {
 	if (req.getPath() == "/submit")
 	{
-		std::string filename;
+		_statusCode = 200;
+		_statusComment = "OK";
+		_body = "<div class='result'>";
+		_body += "<h2>Données GET reçues :</h2>";
+		
+		// Parse la query string comme on parse le body en POST
 		std::istringstream iss(req.getQuerry_string());
 		std::string token;
 		while (std::getline(iss, token, '&'))
@@ -43,21 +48,10 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 			{
 				std::string key = token.substr(0, eq);
 				std::string val = token.substr(eq + 1);
-				if (key == "filename")
-					filename = val;
+				_body += "<p>" + key + ": " + val + "</p>";
 			}
 		}
-
-		std::string file_path = "var/www/" + filename;
-		struct stat sb;
-		if (stat(file_path.c_str(), &sb) != 0)
-			errorHandler(404);
-
-		std::string file_content = readFile(file_path);
-		_body = "<h2>Resultat GET</h2>";
-		_body += "<h3>Contenu du fichier " + filename + " :</h3><p>" + file_content + "</p>";
-		_statusCode = 200;
-		_statusComment = "OK";
+		_body += "</div>";
 		_headers["Content-Type"] = "text/html; charset=utf-8";
 		return;
 	}
@@ -206,26 +200,46 @@ void	Reponse::handlePOST(const Request &req, std::string true_path)
 			_headers = headers;
 		}
 	}
-	if (!req.getBody().empty() && true_path.find("/cgi-bin/") == std::string::npos)
+	if (req.getPath() == "/submit")
 	{
-		if (true_path[true_path.length() - 1] == '/')
+		_statusCode = 200;
+		_statusComment = "OK";
+		
+		// Parse le body du POST qui est au format application/x-www-form-urlencoded
+		std::istringstream iss(req.getBody());
+		std::string token;
+		while (std::getline(iss, token, '&'))
 		{
-			std::string tmpPath = "index.html" + true_path;
-			true_path = tmpPath;
+			size_t eq = token.find('=');
+			if (eq != std::string::npos)
+			{
+				std::string key = token.substr(0, eq);
+				std::string val = token.substr(eq + 1);
+				_body += "<p>" + key + ": " + val + "</p>";
+			}
 		}
-
-		std::string buffer = readFile(true_path);
-		if (!buffer.empty())
-		{
-			_statusCode = 200;
-			_statusComment = "OK";
-			_body = buffer;
-			std::string contentType = getContentType(true_path);
-			_headers["Content-Type"] = contentType;
-		}
-		else
-			errorHandler(404);
+		_headers["Content-Type"] = "text/html; charset=utf-8";
+		return;
 	}
+	// if (!req.getBody().empty() && true_path.find("/cgi-bin/") == std::string::npos)
+	// {
+	// 	if (true_path[true_path.length() - 1] == '/')
+	// 	{
+	// 		std::string tmpPath = "index.html" + true_path;
+	// 		true_path = tmpPath;
+	// 	}
+
+	// 	std::string buffer = readFile(true_path);
+	// 	if (!buffer.empty())
+	// 	{
+	// 		_statusCode = 200;
+	// 		_statusComment = "OK";
+	// 		_body = buffer;
+	// 		std::string contentType = getContentType(true_path);
+	// 		_headers["Content-Type"] = contentType;
+	// 	}
+	else
+		errorHandler(404);
 }
 
 void	Reponse::handleDELETE(const Request &req, std::string true_path)
@@ -262,6 +276,22 @@ std::string	Reponse::handleRequest(const Request &req, const Server &server)
 {
 	const Location* location = matchLocation(server, req.getPath());
 
+	if (location && location->hasRedirect)
+	{
+		handleRedirect(location->redirectPath);
+		std::ostringstream oss;
+		oss << _body.size();
+		_headers["Content-Length"] = oss.str();
+		
+		std::ostringstream ossCode;
+		ossCode << _statusCode;
+		std::string rep = req.getVersion() + " " + ossCode.str() + " " + _statusComment + "\r\n";
+		for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); it++)
+			rep += it->first + ": " + it->second + "\r\n";
+		rep += "\r\n";
+		rep += _body;
+		return rep;
+	}
 	std::string true_path = findTruePath(server, location, req.getPath());
 	if (req.getMethod() == "413")
 		errorHandler(413);
@@ -294,17 +324,23 @@ std::string	Reponse::handleRequest(const Request &req, const Server &server)
 const Location *Reponse::matchLocation(const Server &server, const std::string &path)
 {
 	const Location *match = NULL;
+	size_t longest_match = 0;
 
 	for (size_t i = 0; i < server.locations.size(); i++)
 	{
 		const Location &loc = server.locations[i];
-		if (path.find(loc.path) == 0)
+		// Vérifie si le path correspond exactement ou commence par le location path
+		if (path == loc.path || 
+			(path.find(loc.path) == 0 && ((loc.path.length() > 0 && loc.path[loc.path.length() - 1] == '/') || path[loc.path.length()] == '/')))
 		{
-			if (!match || loc.path.length() > match->path.length())
+			if (!match || loc.path.length() > longest_match)
+			{
 				match = &loc;
+				longest_match = loc.path.length();
+			}
 		}
 	}
-	return (match);
+	return match;
 }
 
 std::string Reponse::findTruePath(const Server &server, const Location *location, const std::string &path)
@@ -340,8 +376,9 @@ std::string Reponse::findTruePath(const Server &server, const Location *location
 bool Reponse::isMethodAllowed(const Location *location, const std::string &method)
 {
 	if (!location || location->allow_methods.empty())
-		return (false);
+		return (true);  // Change false en true ici
 
+	// Vérifie si la méthode est dans la liste des méthodes autorisées
 	std::vector<std::string>::const_iterator it = location->allow_methods.begin();
 	while (it != location->allow_methods.end())
 	{
@@ -349,8 +386,6 @@ bool Reponse::isMethodAllowed(const Location *location, const std::string &metho
 			return (true);
 		++it;
 	}
-	if (method != "GET" && method != "POST" && method != "DELETE")
-		return (true);
 	return (false);
 }
 
@@ -418,4 +453,14 @@ void Reponse::errorHandler(int error)
 			_body = "<h1> 501 Method not implemented </h1>";
 		_headers["Content-Type"] = "text/plain";
 	}
+}
+
+void Reponse::handleRedirect(const std::string& newPath)
+{
+	_statusCode = 301;
+	_statusComment = "Moved Permanently";
+	_headers["Location"] = newPath;
+	_headers["Content-Type"] = "text/html";
+	_body = "<html><head><meta http-equiv='refresh' content='0;url=" + newPath + "'></head>"
+			"<body>Redirecting to <a href='" + newPath + "'>" + newPath + "</a></body></html>";
 }

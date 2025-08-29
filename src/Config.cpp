@@ -141,6 +141,20 @@ void Config::parseLocationBlock(std::ifstream &file, Server &server, const std::
 			cleanValue(value);
 			locations.cgi_extension = value;
 		}
+		else if (line.find("return") != std::string::npos)
+		{
+			std::istringstream iss(line);
+			std::string keyword;
+			iss >> keyword;
+			
+			iss >> locations.redirectCode >> locations.redirectPath;
+			
+			// Nettoie le point-virgule
+			if (!locations.redirectPath.empty() && locations.redirectPath[locations.redirectPath.length()-1] == ';')
+				locations.redirectPath.erase(locations.redirectPath.length()-1);
+				
+			locations.hasRedirect = true;
+		}
 	}
 	server.locations.push_back(locations);
 }

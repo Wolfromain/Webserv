@@ -29,6 +29,8 @@ class Reponse
 		void		handleGET(const Request &req, std::string true_path);
 		void		handlePOST(const Request &req, std::string true_path);
 		void		handleDELETE(const Request &req, std::string true_path);
+		void		handleRedirect(const std::string& newPath);
+
 
 		//Locations
 		const Location* matchLocation(const Server &server, const std::string &path);
