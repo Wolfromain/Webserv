@@ -33,11 +33,20 @@ int main(int argc, char **argv)
 	}
 
 	const std::vector<Server>& servers = config.getServers();
+	// for (size_t i = 0; i < servers.size(); ++i)
+	// {
+	// 	Server* server = new Server(servers[i]);
+	// 	g_servers.push_back(server);
+	// 	server->initSocket();
+	// }
+	// Server::runPollLoop(g_servers);
+
 	for (size_t i = 0; i < servers.size(); ++i)
 	{
 		Server* server = new Server(servers[i]);
 		g_servers.push_back(server);
 		server->start();
 	}
+
 	return (0);
 }

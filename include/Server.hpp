@@ -10,6 +10,8 @@
 # include <sys/socket.h>
 # include <signal.h>
 # include <poll.h>
+# include <algorithm>
+# include <map>
 
 # include "Request.hpp"
 # include "Config.hpp"
@@ -38,6 +40,9 @@ class Server
 
 	int _server_fd;
 	struct sockaddr_in _address;
+	std::vector<int> _ports;
+	std::vector<int> _listen_fds;
+
 
 	public:
 
@@ -51,10 +56,13 @@ class Server
 		std::vector<Location> locations;
 		size_t max_body_size;
 
+		// void initSocket();
+		// static void runPollLoop(std::vector<Server*>& servers);
 		void start();
 		void stop();
 		bool isRunning() const;
 		int	getServerFd() const;
+		int	getClientMaxBodySize() const;
 };
 
 #endif

@@ -97,7 +97,7 @@ void	Request::parse(const std::string &raw_request, const Server &server)
 	if (!isContLen.empty())
 	{
 		len = atoi(isContLen.c_str());
-		if ((const size_t)len > server.max_body_size)
+		if (len > server.getClientMaxBodySize())
 			_method = "413";
 	}
 		if (len > 0)

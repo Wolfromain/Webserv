@@ -36,9 +36,8 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 		_statusCode = 200;
 		_statusComment = "OK";
 		_body = "<div class='result'>";
-		_body += "<h2>Données GET reçues :</h2>";
+		_body += "<h2>Donnees GET recues :</h2>";
 		
-		// Parse la query string comme on parse le body en POST
 		std::istringstream iss(req.getQuerry_string());
 		std::string token;
 		while (std::getline(iss, token, '&'))
