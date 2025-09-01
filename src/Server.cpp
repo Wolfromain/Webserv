@@ -52,7 +52,7 @@ void Server::initSocket()
 		}
 
 		std::cout << "Listening on port " << _ports[i] << std::endl;
-		_listen_fds.push_back(sock);
+		_listen_fd = (sock);
 	}
 }
 
@@ -62,16 +62,13 @@ void Server::runPollLoop(std::vector<Server*>& servers)
 
 	for (size_t s = 0; s < servers.size(); s++)
 	{
-		for (size_t i = 0; i < servers[s]->_listen_fds.size(); i++)
-		{
-			std::cout << "Adding server FD " << servers[s]->_listen_fds[i] << " to poll list" << std::endl;
-			std::cout << "Server name: " << servers[s]->server_name << std::endl;
-			std::cout << "Listening on ports: ";
-			for (size_t p = 0; p < servers[s]->_ports.size(); p++)
-				std::cout << servers[s]->_ports[p] << " " << std::endl;
-			struct pollfd pfd = { servers[s]->_listen_fds[i], POLLIN, 0 };
-			fds.push_back(pfd);
-		}
+		std::cout << "Adding server FD " << servers[s]->_listen_fd << " to poll list" << std::endl;
+		std::cout << "Server name: " << servers[s]->server_name << std::endl;
+		std::cout << "Listening on ports: ";
+		for (size_t p = 0; p < servers[s]->_ports.size(); p++)
+			std::cout << servers[s]->_ports[p] << " " << std::endl;
+		struct pollfd pfd = { servers[s]->_listen_fd, POLLIN, 0 };
+		fds.push_back(pfd);
 	}
 
 	bool is_running = true;
@@ -87,26 +84,30 @@ void Server::runPollLoop(std::vector<Server*>& servers)
 		{
 			if (fds[i].revents & (POLLHUP | POLLERR))
 			{
+				std::cerr << "quits" << std::endl;
 				close(fds[i].fd);
 				client_to_server.erase(fds[i].fd);
 				fds.erase(fds.begin() + i);
 				--i;
 				continue;
 			}
+			else if (fds[i].revents & POLLIN)
 			{
 				bool is_server_fd = false;
 				Server* current_server = NULL;
-
-				for (size_t s = 0; s < servers.size(); s++)
+				for(size_t s=0;s<servers.size();s++)
 				{
-					if (std::find(servers[s]->_listen_fds.begin(), servers[s]->_listen_fds.end(), fds[i].fd) != servers[s]->_listen_fds.end())
+					std::cerr << "server: " << s<< std::endl;
+					if (fds[i].fd == servers[s]->_listen_fd)
 					{
+
 						is_server_fd = true;
 						current_server = servers[s];
 						break;
 					}
 				}
-
+				std::cerr << "fd: " << fds[i].fd << std::endl;
+				std::cerr << "is_server_fd:" << is_server_fd<< std::endl;
 				if (is_server_fd)
 				{
 					struct sockaddr_in client_addr;
@@ -117,13 +118,14 @@ void Server::runPollLoop(std::vector<Server*>& servers)
 						std::cerr << "Failed to accept connection" << std::endl;
 						continue;
 					}
-
+					
 					client_to_server[client_fd] = current_server;
 
 					struct pollfd client_pfd = { client_fd, POLLIN, 0 };
 					fds.push_back(client_pfd);
 
 					std::cout << "New client FD " << client_fd << " on server " << current_server->server_name << std::endl;
+					//
 				}
 				else
 				{
@@ -158,6 +160,9 @@ void Server::runPollLoop(std::vector<Server*>& servers)
 					fds.erase(fds.begin() + i);
 					--i;
 				}
+				std::cerr << "i: " <<  i << std::endl;
+
+				std::cerr << "fds.size() " << fds.size() << std::endl;
 			}
 		}
 	}

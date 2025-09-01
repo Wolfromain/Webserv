@@ -16,7 +16,14 @@ MANDATORY_SRCS = $(SRC)
 PMANDATORY =  $(addprefix , $(MANDATORY_SRCS))
 OBJS = $(PMANDATORY:$(SRC_DIR)%.cpp=$(OBJ_DIR)/%.o)
 
+
 all: $(NAME)
+
+run: 
+	$(MAKE) fclean
+	$(MAKE) all
+	@printf "\n\e[1;93mLaunching ./$(NAME) - - - - - - - - - - - - #\e[0;39m\n\n"
+	./$(NAME) config/webserv.conf
 
 $(OBJ_DIR)/%.o : $(SRC_DIR)%.cpp
 	@mkdir -p $(dir $@)

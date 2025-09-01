@@ -40,7 +40,7 @@ class Server
 
 	int _server_fd;
 	// struct sockaddr_in _address;
-	std::vector<int> _listen_fds;
+	int _listen_fd;
 	std::vector<int> _ports;
 
 
