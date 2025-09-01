@@ -71,8 +71,7 @@ void Server::runPollLoop(std::vector<Server*>& servers)
 		fds.push_back(pfd);
 	}
 
-	bool is_running = true;
-	while (is_running)
+	while (g_running)
 	{
 		int poll_count = poll(fds.data(), fds.size(), 5000);
 		if (poll_count == -1)
@@ -125,7 +124,7 @@ void Server::runPollLoop(std::vector<Server*>& servers)
 					fds.push_back(client_pfd);
 
 					std::cout << "New client FD " << client_fd << " on server " << current_server->server_name << std::endl;
-					//
+
 				}
 				else
 				{

@@ -3,7 +3,8 @@
 
 #include "Server.hpp"
 
+extern bool g_running;
+
 std::string		readFile(const std::string &path);
-void		signalHandler(int signum);
 
 #endif
