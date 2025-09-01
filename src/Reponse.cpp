@@ -130,73 +130,66 @@ void Reponse::handleGET(const Request &req, std::string true_path)
 
 void	Reponse::handlePOST(const Request &req, std::string true_path)
 {
-	if ((true_path.find(".php") != std::string::npos || true_path.find(".py") != std::string::npos) && true_path.find("/cgi-bin/") != std::string::npos)
+	if ((true_path.find(".php") != std::string::npos || true_path.find(".py") != std::string::npos) 
+		&& true_path.find("/cgi-bin/") != std::string::npos)
 	{
 		struct stat sb;
 		if (stat(true_path.c_str(), &sb) != 0)
-			errorHandler(404);
-		else
 		{
-			std::string output = cgiExec(req, true_path);
-			if (output == "504_GATEWAY_TIMEOUT")
-				errorHandler(504);
+			errorHandler(404);
+			return;
+		}
+
+		std::string output = cgiExec(req, true_path);
+		if (output == "504_GATEWAY_TIMEOUT")
+		{
+			errorHandler(504);
+			return;
+		}
+		else if (!output.empty())
+		{
 			std::string headers_part, body_part;
 			size_t pos = output.find("\r\n\r\n");
 			if (pos != std::string::npos)
 			{
 				headers_part = output.substr(0, pos);
 				body_part = output.substr(pos + 4);
-			}
 
-			std::map<std::string, std::string> headers;
-			std::istringstream stream(headers_part);
-			std::string line;
+				std::map<std::string, std::string> headers;
+				std::istringstream stream(headers_part);
+				std::string line;
 
-			while (std::getline(stream, line))
-			{
-				if (line.size() >= 2 && line[line.size()-1] == '\r')
-					line = line.substr(0, line.size()-1);
-
-				size_t sep = line.find(": ");
-				if (sep != std::string::npos)
+				while (std::getline(stream, line))
 				{
-					std::string key = line.substr(0, sep);
-					std::string value = line.substr(sep + 2);
-					headers[key] = value;
-				}
-			}
-			int status_code;
-			std::string status_text = "OK";
-			
-			while (std::getline(stream, line))
-			{
-				std::cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << std::endl;
-				if (line.size() >= 2 && line[line.size()-1] == '\r')
-					line = line.substr(0, line.size()-1);
+					if (line.size() >= 2 && line[line.size()-1] == '\r')
+						line = line.substr(0, line.size()-1);
 
-				if (line.find("Status:") == 0)
-				{
-					std::string status_line = line.substr(7);
-					size_t space = status_line.find(' ');
-					if (space != std::string::npos)
+					size_t sep = line.find(": ");
+					if (sep != std::string::npos)
 					{
-						status_code = std::atoi(status_line.substr(0, space).c_str());
-						status_text = status_line.substr(space + 1);
+						std::string key = line.substr(0, sep);
+						std::string value = line.substr(sep + 2);
+						headers[key] = value;
 					}
-					continue;
 				}
-				size_t sep = line.find(": ");
-				if (sep != std::string::npos)
-				{
-					std::string key = line.substr(0, sep);
-					std::string value = line.substr(sep + 2);
-					headers[key] = value;
-				}
+				_statusCode = 200;
+				_statusComment = "OK";
+				_body = body_part;
+				_headers = headers;
 			}
-			_statusCode = status_code;
-			_statusComment = status_text;
-			_body = body_part;
-			_headers = headers;
+			else
+			{
+				_statusCode = 200;
+				_statusComment = "OK";
+				_body = output;
+				_headers["Content-Type"] = "text/html";
+			}
+			return;
+		}
+		else
+		{
+			errorHandler(500);
+			return;
 		}
 	}
 	if (req.getPath() == "/submit")
@@ -204,7 +197,6 @@ void	Reponse::handlePOST(const Request &req, std::string true_path)
 		_statusCode = 200;
 		_statusComment = "OK";
 		
-		// Parse le body du POST qui est au format application/x-www-form-urlencoded
 		std::istringstream iss(req.getBody());
 		std::string token;
 		while (std::getline(iss, token, '&'))
@@ -220,23 +212,6 @@ void	Reponse::handlePOST(const Request &req, std::string true_path)
 		_headers["Content-Type"] = "text/html; charset=utf-8";
 		return;
 	}
-	// if (!req.getBody().empty() && true_path.find("/cgi-bin/") == std::string::npos)
-	// {
-	// 	if (true_path[true_path.length() - 1] == '/')
-	// 	{
-	// 		std::string tmpPath = "index.html" + true_path;
-	// 		true_path = tmpPath;
-	// 	}
-
-	// 	std::string buffer = readFile(true_path);
-	// 	if (!buffer.empty())
-	// 	{
-	// 		_statusCode = 200;
-	// 		_statusComment = "OK";
-	// 		_body = buffer;
-	// 		std::string contentType = getContentType(true_path);
-	// 		_headers["Content-Type"] = contentType;
-	// 	}
 	else
 		errorHandler(404);
 }
