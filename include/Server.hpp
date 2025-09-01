@@ -39,9 +39,9 @@ class Server
 	private:
 
 	int _server_fd;
-	struct sockaddr_in _address;
-	std::vector<int> _ports;
+	// struct sockaddr_in _address;
 	std::vector<int> _listen_fds;
+	std::vector<int> _ports;
 
 
 	public:
@@ -56,13 +56,16 @@ class Server
 		std::vector<Location> locations;
 		size_t max_body_size;
 
-		// void initSocket();
-		// static void runPollLoop(std::vector<Server*>& servers);
-		void start();
+		void initSocket();
+		static void runPollLoop(std::vector<Server*>& servers);
+		// void start();
 		void stop();
 		bool isRunning() const;
 		int	getServerFd() const;
 		int	getClientMaxBodySize() const;
+		void addPort(int port);
+		const std::vector<int>& getPorts() const;
+
 };
 
 #endif

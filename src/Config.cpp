@@ -47,7 +47,14 @@ int Config::parseServerBlock(std::ifstream &file)
 			continue;
 
 		if (line.find("listen") != std::string::npos)
-			server.listen_port = atoi(line.substr(line.find("listen") + 6).c_str());
+		{
+			std::string value = line.substr(line.find("listen") + 6);
+			cleanValue(value);
+			int port = atoi(value.c_str());
+			if (port > 0)
+				server.addPort(port);
+		}
+
 		else if (line.find("server_name") != std::string::npos)
 		{
 			std::string value = line.substr(line.find("server_name") + 11);
