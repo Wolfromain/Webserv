@@ -57,6 +57,10 @@ class Server
 		size_t max_body_size;
 
 		void initSocket();
+		static bool is_server_socket(int fd, std::vector<Server*>& servers);
+		static void handle_new_connection(std::vector<struct pollfd>& fds, int server_fd, std::vector<Server*>& servers);
+		static bool handle_client_data(std::vector<struct pollfd>& fds, size_t i);
+
 		static void runPollLoop(std::vector<Server*>& servers);
 		// void start();
 		void stop();

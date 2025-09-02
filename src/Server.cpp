@@ -50,10 +50,76 @@ void Server::initSocket()
 			close(sock);
 			continue;
 		}
-
+		
 		std::cout << "Listening on port " << _ports[i] << std::endl;
 		_listen_fd = (sock);
 	}
+}
+
+bool Server::is_server_socket(int fd, std::vector<Server*>& servers)
+{
+	for (size_t s = 0; s < servers.size(); s++)
+		if (fd == servers[s]->_listen_fd)
+			return true;
+	return false;
+}
+
+void Server::handle_new_connection(std::vector<struct pollfd>& fds, int server_fd, std::vector<Server*>& servers)
+{
+	struct sockaddr_in client_addr;
+	socklen_t addrlen = sizeof(client_addr);
+	
+	int client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &addrlen);
+	if (client_fd == -1)
+		return;
+
+	// Set non-blocking
+	int flags = fcntl(client_fd, F_GETFL, 0);
+	fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
+
+	// Find corresponding server
+	for (size_t s = 0; s < servers.size(); s++)
+	{
+		if (server_fd == servers[s]->_listen_fd)
+		{
+			client_to_server[client_fd] = servers[s];
+			break;
+		}
+	}
+
+	struct pollfd client_pfd = { client_fd, POLLIN, 0 };
+	fds.push_back(client_pfd);
+}
+
+bool Server::handle_client_data(std::vector<struct pollfd>& fds, size_t i)
+{
+	char buffer[30720];
+	int is_read = read(fds[i].fd, buffer, sizeof(buffer));
+
+	if (is_read <= 0)
+	{
+		close(fds[i].fd);
+		client_to_server.erase(fds[i].fd);
+		fds.erase(fds.begin() + i);
+		return false;
+	}
+
+	std::string request_data(buffer, is_read);
+	Server* server = client_to_server[fds[i].fd];
+		
+	Request request;
+	request.parse(request_data, *server);
+	// request.printAllToTest();
+
+	Reponse rep;
+	std::string response = rep.handleRequest(request, *server);
+		
+	send(fds[i].fd, response.c_str(), response.size(), 0);
+		
+	close(fds[i].fd);
+	client_to_server.erase(fds[i].fd);
+	fds.erase(fds.begin() + i);
+	return false;
 }
 
 void Server::runPollLoop(std::vector<Server*>& servers)
@@ -79,93 +145,46 @@ void Server::runPollLoop(std::vector<Server*>& servers)
 			std::cout << "Error: poll()" << std::endl;
 			break;
 		}
-		for (size_t i = 0; i < fds.size(); i++)
+		for (size_t i = 0; i < fds.size() && g_running; i++)
 		{
-			if (fds[i].revents & (POLLHUP | POLLERR))
+			if (fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
 			{
-				std::cerr << "quits" << std::endl;
-				close(fds[i].fd);
-				client_to_server.erase(fds[i].fd);
-				fds.erase(fds.begin() + i);
-				--i;
-				continue;
-			}
-			else if (fds[i].revents & POLLIN)
-			{
-				bool is_server_fd = false;
-				Server* current_server = NULL;
-				for(size_t s=0;s<servers.size();s++)
+				if (!is_server_socket(fds[i].fd, servers)) // Add helper function
 				{
-					std::cerr << "server: " << s<< std::endl;
-					if (fds[i].fd == servers[s]->_listen_fd)
-					{
-
-						is_server_fd = true;
-						current_server = servers[s];
-						break;
-					}
-				}
-				std::cerr << "fd: " << fds[i].fd << std::endl;
-				std::cerr << "is_server_fd:" << is_server_fd<< std::endl;
-				if (is_server_fd)
-				{
-					struct sockaddr_in client_addr;
-					socklen_t addrlen = sizeof(client_addr);
-					int client_fd = accept(fds[i].fd, (struct sockaddr*)&client_addr, &addrlen);
-					if (client_fd == -1)
-					{
-						std::cerr << "Failed to accept connection" << std::endl;
-						continue;
-					}
-					
-					client_to_server[client_fd] = current_server;
-
-					struct pollfd client_pfd = { client_fd, POLLIN, 0 };
-					fds.push_back(client_pfd);
-
-					std::cout << "New client FD " << client_fd << " on server " << current_server->server_name << std::endl;
-
-				}
-				else
-				{
-					std::cout << "DANS LE ELSE" << std::endl;
- 					char buffer[30720];
-					int is_read = recv(fds[i].fd, buffer, sizeof(buffer), 0);
-					if (is_read <= 0)
-					{
-						close(fds[i].fd);
-						client_to_server.erase(fds[i].fd);
-						fds.erase(fds.begin() + i);
-						--i;
-						continue;
-					}
-
-					std::string request_data(buffer, is_read);
-
-					Server* current_server = client_to_server[fds[i].fd];
-
-					Request request;
-					request.parse(request_data, *current_server);
-
-					Reponse rep;
-					std::string response = rep.handleRequest(request, *current_server);
-
-					std::string http_status = "HTTP/1.1 200 OK\r\n";
-					std::string full_response = http_status + response;
-					send(fds[i].fd, full_response.c_str(), full_response.size(), 0);
-
 					close(fds[i].fd);
 					client_to_server.erase(fds[i].fd);
 					fds.erase(fds.begin() + i);
 					--i;
 				}
-				std::cerr << "i: " <<  i << std::endl;
+				continue;
+			}
 
-				std::cerr << "fds.size() " << fds.size() << std::endl;
+			if (!(fds[i].revents & POLLIN))
+				continue;
+
+			// Handle new connections
+			if (is_server_socket(fds[i].fd, servers))
+			{
+				handle_new_connection(fds, fds[i].fd, servers);
+				continue;
+			}
+
+			// Handle client data
+			if (!handle_client_data(fds, i))
+			{
+				--i;
+				continue;
 			}
 		}
 	}
+	for (size_t i = 0; i < fds.size(); i++)
+	{
+		close(fds[i].fd);
+		if (client_to_server.find(fds[i].fd) != client_to_server.end())
+			client_to_server.erase(fds[i].fd);
+	}
 }
+
 
 // void Server::start()
 // {
