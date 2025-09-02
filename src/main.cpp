@@ -12,23 +12,6 @@ void signalHandler(int signum)
 	}
 	else if (signum == SIGPIPE)
 		return;
-	// if (signum == SIGINT || signum == SIGTERM)
-	// {
-	// 	std::cout << "\nShutting down server..." << std::endl;
-	// 	for (size_t i = 0; i < g_servers.size(); i++)
-	// 	{
-	// 		if (g_servers[i] && g_servers[i]->isRunning())
-	// 			g_servers[i]->stop();
-	// 	}
-	// 	for (size_t i = 0; i < g_servers.size(); i++)
-	// 		delete g_servers[i];
-	// 	g_servers.clear();
-
-	// 	std::cout << "Server shutdown complete." << std::endl;
-	// 	exit(0);
-	// }
-	// else if (signum == SIGPIPE)
-	// 	return;
 }
 
 int main(int argc, char **argv)
@@ -75,15 +58,6 @@ int main(int argc, char **argv)
 		}
 		Server::runPollLoop(g_servers);
 	}
-
-	// for (size_t i = 0; i < servers.size(); ++i)
-	// {
-	// 	std::cout << "Server " << i << " has " << servers[i]._ports.size() << " _ports" << std::endl;
-	// 	Server* server = new Server(servers[i]);
-	// 	std::cout << "After copy, server has " << server->_ports.size() << " _ports" << std::endl;
-	// 	g_servers.push_back(server);
-	// 	server->start();
-	// }
 
 	std::cout << "\nShutting down server..." << std::endl;
 	for (std::vector<Server*>::iterator it = g_servers.begin(); it != g_servers.end(); ++it)

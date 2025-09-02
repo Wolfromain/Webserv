@@ -1,75 +1,75 @@
-#ifndef SERVER_HPP
-# define SERVER_HPP
+	#ifndef SERVER_HPP
+	# define SERVER_HPP
 
-# include <iostream>
-# include <string>
-# include <vector>
-# include <cstring>
-# include <unistd.h>
-# include <netinet/in.h>
-# include <sys/socket.h>
-# include <signal.h>
-# include <poll.h>
-# include <algorithm>
-# include <map>
+	# include <iostream>
+	# include <string>
+	# include <vector>
+	# include <cstring>
+	# include <unistd.h>
+	# include <netinet/in.h>
+	# include <sys/socket.h>
+	# include <signal.h>
+	# include <poll.h>
+	# include <algorithm>
+	# include <map>
 
-# include "Request.hpp"
-# include "Config.hpp"
-# include "utils.hpp"
-# include "CGI.hpp"
+	# include "Request.hpp"
+	# include "Config.hpp"
+	# include "utils.hpp"
+	# include "CGI.hpp"
 
-class Request;
+	class Request;
 
-struct Location
-{
-	std::string path;
-	std::string root;
-	std::string index;
-	std::string cgi_extension;
-	std::vector<std::string> allow_methods;
-	bool autoindex;
-	bool hasRedirect;
-	int redirectCode;
-	std::string redirectPath;
-	Location() : hasRedirect(false), redirectCode(0) {}
-};
-
-class Server
-{
-	private:
-
-	int _server_fd;
-	// struct sockaddr_in _address;
-	int _listen_fd;
-	std::vector<int> _ports;
-
-
-	public:
-
-		Server();
-		Server(const Server& conf);
-		~Server();
-		int listen_port;
-		std::string server_name;
+	struct Location
+	{
+		std::string path;
 		std::string root;
-		std::map<int, std::string> error_pages;
-		std::vector<Location> locations;
-		size_t max_body_size;
+		std::string index;
+		std::string cgi_extension;
+		std::vector<std::string> allow_methods;
+		bool autoindex;
+		bool hasRedirect;
+		int redirectCode;
+		std::string redirectPath;
+		Location() : hasRedirect(false), redirectCode(0) {}
+	};
 
-		void initSocket();
-		static bool is_server_socket(int fd, std::vector<Server*>& servers);
-		static void handle_new_connection(std::vector<struct pollfd>& fds, int server_fd, std::vector<Server*>& servers);
-		static bool handle_client_data(std::vector<struct pollfd>& fds, size_t i);
+	class Server
+	{
+		private:
 
-		static void runPollLoop(std::vector<Server*>& servers);
-		// void start();
-		void stop();
-		bool isRunning() const;
-		int	getServerFd() const;
-		int	getClientMaxBodySize() const;
-		void addPort(int port);
-		const std::vector<int>& getPorts() const;
+		int _server_fd;
+		// struct sockaddr_in _address;
+		int _listen_fd;
+		std::vector<int> _ports;
 
-};
 
-#endif
+		public:
+
+			Server();
+			Server(const Server& conf);
+			~Server();
+			int listen_port;
+			std::string server_name;
+			std::string root;
+			std::map<int, std::string> error_pages;
+			std::vector<Location> locations;
+			size_t max_body_size;
+
+			void initSocket();
+			static bool is_server_socket(int fd, std::vector<Server*>& servers);
+			static void handle_new_connection(std::vector<struct pollfd>& fds, int server_fd, std::vector<Server*>& servers);
+			static bool handle_client_data(std::vector<struct pollfd>& fds, size_t i);
+
+			static void runPollLoop(std::vector<Server*>& servers);
+			// void start();
+			void stop();
+			bool isRunning() const;
+			int	getServerFd() const;
+			int	getClientMaxBodySize() const;
+			void addPort(int port);
+			const std::vector<int>& getPorts() const;
+
+	};
+
+	#endif

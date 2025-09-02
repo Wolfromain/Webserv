@@ -2,6 +2,7 @@
 #include "Reponse.hpp"
 
 static std::map<int, Server*> client_to_server;
+static std::map<int, std::string> client_buffers;
 
 Server::Server()
 {
@@ -94,31 +95,67 @@ void Server::handle_new_connection(std::vector<struct pollfd>& fds, int server_f
 bool Server::handle_client_data(std::vector<struct pollfd>& fds, size_t i)
 {
 	char buffer[30720];
-	int is_read = read(fds[i].fd, buffer, sizeof(buffer));
+	int bytes_read = recv(fds[i].fd, buffer, sizeof(buffer), 0);
 
-	if (is_read <= 0)
+	if (bytes_read == 0)
 	{
 		close(fds[i].fd);
 		client_to_server.erase(fds[i].fd);
+		client_buffers.erase(fds[i].fd);
 		fds.erase(fds.begin() + i);
 		return false;
 	}
+	else if (bytes_read < 0)
+		return true;
 
-	std::string request_data(buffer, is_read);
+	client_buffers[fds[i].fd].append(buffer, bytes_read);
+	std::string& full_request = client_buffers[fds[i].fd];
+
+
+	size_t header_end = full_request.find("\r\n\r\n");
+	if (header_end == std::string::npos)
+		return true;
+
+
+	std::string method;
+	size_t method_end = full_request.find(' ');
+	if (method_end != std::string::npos)
+		method = full_request.substr(0, method_end);
+
+	// vérifier Content-Length
+	size_t content_length = 0;
+	size_t cl_pos = full_request.find("Content-Length:");
+	if (cl_pos != std::string::npos)
+	{
+		cl_pos += 15;
+		while (cl_pos < full_request.size() && isspace(full_request[cl_pos]))
+			cl_pos++;
+		content_length = std::atoi(full_request.c_str() + cl_pos);
+	}
+
+	if (method == "GET")
+		content_length = 0;
+
+	size_t total_needed = header_end + 4 + content_length;
+	if (full_request.size() < total_needed)
+		return true;
+
 	Server* server = client_to_server[fds[i].fd];
-		
 	Request request;
-	request.parse(request_data, *server);
-	// request.printAllToTest();
+	request.parse(full_request, *server);
+	request.printAllToTest();
 
 	Reponse rep;
 	std::string response = rep.handleRequest(request, *server);
-		
+
 	send(fds[i].fd, response.c_str(), response.size(), 0);
-		
+
+	// nettoyage
 	close(fds[i].fd);
 	client_to_server.erase(fds[i].fd);
+	client_buffers.erase(fds[i].fd);
 	fds.erase(fds.begin() + i);
+
 	return false;
 }
 
@@ -149,7 +186,7 @@ void Server::runPollLoop(std::vector<Server*>& servers)
 		{
 			if (fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
 			{
-				if (!is_server_socket(fds[i].fd, servers)) // Add helper function
+				if (!is_server_socket(fds[i].fd, servers))
 				{
 					close(fds[i].fd);
 					client_to_server.erase(fds[i].fd);
@@ -162,14 +199,12 @@ void Server::runPollLoop(std::vector<Server*>& servers)
 			if (!(fds[i].revents & POLLIN))
 				continue;
 
-			// Handle new connections
 			if (is_server_socket(fds[i].fd, servers))
 			{
 				handle_new_connection(fds, fds[i].fd, servers);
 				continue;
 			}
 
-			// Handle client data
 			if (!handle_client_data(fds, i))
 			{
 				--i;
@@ -184,119 +219,6 @@ void Server::runPollLoop(std::vector<Server*>& servers)
 			client_to_server.erase(fds[i].fd);
 	}
 }
-
-
-// void Server::start()
-// {
-// 	bool is_running = true;
-// 	_server_fd = socket(AF_INET, SOCK_STREAM, 0);
-// 	if (_server_fd == -1) {
-// 		std::cerr << "Failed to create socket" << std::endl;
-// 		return;
-// 	}
-
-// 	int opt = 1;
-// 	setsockopt(_server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-
-// 	_address.sin_family = AF_INET;
-// 	_address.sin_port = htons(listen_port);
-// 	_address.sin_addr.s_addr = INADDR_ANY;
-
-// 	if (bind(_server_fd, (struct sockaddr*)&_address, sizeof(_address)) == -1) {
-// 		std::cerr << "Failed to bind socket" << std::endl;
-// 		return;
-// 	}
-
-// 	if (listen(_server_fd, SOMAXCONN) == -1) {
-// 		std::cerr << "Failed to listen on socket" << std::endl;
-// 		return;
-// 	}
-
-// 	std::cout << "Server started on port " << listen_port << std::endl;
-
-// 	std::vector<struct pollfd> fds;
-// 	struct pollfd server_pollfd = {_server_fd, POLLIN, 0};
-// 	fds.push_back(server_pollfd);
-
-// 	while (is_running) {
-// 		int poll_count = poll(fds.data(), fds.size(), 0);
-// 		if (poll_count == -1) {
-// 			std::cerr << "Error : poll()" << std::endl;
-// 			break;
-// 		}
-
-// 		for (size_t i = 0; i < fds.size(); i++) {
-// 			if (fds[i].revents & POLLIN) {
-// 				if (fds[i].fd == _server_fd) {
-// 					socklen_t addrlen = sizeof(_address);
-// 					int client_fd = accept(_server_fd, (struct sockaddr*)&_address, &addrlen);
-// 					if (client_fd == -1) {
-// 						std::cerr << "Failed to accept connection" << std::endl;
-// 						break;
-// 					}
-
-// 					struct pollfd client_pollfd = {client_fd, POLLIN, 100};
-// 					fds.push_back(client_pollfd);
-// 					std::cout << "New client connected: FD " << client_fd << std::endl;
-// 				} else {
-// 					char buffer[30720];
-// 					std::string request_data;
-// 					int is_read = read(fds[i].fd, buffer, sizeof(buffer));
-
-// 					if (is_read < 0) {
-// 						std::cerr << "Failed to read from socket" << std::endl;
-// 						close(fds[i].fd);
-// 						fds.erase(fds.begin() + i);
-// 						--i;
-// 						break;
-// 					}
-
-// 					request_data.append(buffer, is_read);
-
-// 					size_t header_end = request_data.find("\r\n\r\n");
-// 					if (header_end == std::string::npos) {
-// 						continue;
-// 					}
-
-// 					size_t content_length = 0;
-// 					size_t pos = request_data.find("Content-Length:");
-// 					if (pos != std::string::npos) {
-// 						size_t end = request_data.find("\r\n", pos);
-// 						std::string len_str = request_data.substr(pos + 15, end - (pos + 15));
-// 						content_length = atoi(len_str.c_str());
-// 					}
-
-// 					size_t body_start = header_end + 4;
-// 					size_t body_received = request_data.size() - body_start;
-
-// 					while (body_received < content_length) {
-// 						is_read = read(fds[i].fd, buffer, sizeof(buffer));
-// 						if (is_read <= 0) break;
-// 						request_data.append(buffer, is_read);
-// 						body_received = request_data.size() - body_start;
-// 					}
-
-// 					Request request;
-// 					request.parse(request_data, *this);
-// 					request.printAllToTest();
-
-// 					Reponse rep;
-// 					std::string reponse = rep.handleRequest(request, *this);
-// 					std::string http_status = "HTTP/1.1 200 OK\r\n";
-// 					std::string full_response = http_status + reponse;
-
-// 					send(fds[i].fd, full_response.c_str(), full_response.size(), 0);
-// 					close(fds[i].fd);
-// 					fds.erase(fds.begin() + i);
-// 					--i;
-// 				}
-// 			}
-// 		}
-// 	}
-
-// 	fds.clear();
-// 	stop();
-// }
 
 bool Server::isRunning() const
 {
@@ -336,4 +258,3 @@ void Server::addPort(int port)
 {
 	_ports.push_back(port);
 }
-
