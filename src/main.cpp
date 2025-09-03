@@ -50,9 +50,7 @@ int main(int argc, char **argv)
 		const std::vector<Server>& servers = config.getServers();
 		for (size_t i = 0; i < servers.size(); ++i)
 		{
-			// std::cout << "Server " << i << " has " << servers[i].getPorts().size() << " _ports" << std::endl;
 			Server* server = new Server(servers[i]);
-			// std::cout << "After copy, server has " << server->getPorts().size() << " _ports" << std::endl;
 			g_servers.push_back(server);
 			server->initSocket();
 		}

@@ -58,12 +58,16 @@ std::string	cgiExec(const Request &req, std::string script_path)
 	{
 		close(stdin_pipe[0]);
 		close(stdout_pipe[1]);
-		if (req.getMethod() == "POST" && !req.getBody().empty())
-			write(stdin_pipe[1], req.getBody().c_str(), req.getBody().length());
-		close(stdin_pipe[1]);
 		std::stringstream	output;
 		char				buffer[1024];
 		ssize_t				n;
+		if (req.getMethod() == "POST" && !req.getBody().empty())
+		{
+			n = write(stdin_pipe[1], req.getBody().c_str(), req.getBody().length());
+			if (n <= 0)
+				return "403_FORBIDDEN";
+		}
+		close(stdin_pipe[1]);
 
 		int status = 0;
 		int timeout = 5;
@@ -88,7 +92,6 @@ std::string	cgiExec(const Request &req, std::string script_path)
 		{
 			output.write(buffer, n);
 		}
-		// std::cout << output.str() << std::endl;
 		close(stdout_pipe[0]);
 		return(output.str());
 	}

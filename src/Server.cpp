@@ -74,11 +74,9 @@ void Server::handle_new_connection(std::vector<struct pollfd>& fds, int server_f
 	if (client_fd == -1)
 		return;
 
-	// Set non-blocking
 	int flags = fcntl(client_fd, F_GETFL, 0);
 	fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
 
-	// Find corresponding server
 	for (size_t s = 0; s < servers.size(); s++)
 	{
 		if (server_fd == servers[s]->_listen_fd)
@@ -90,6 +88,8 @@ void Server::handle_new_connection(std::vector<struct pollfd>& fds, int server_f
 
 	struct pollfd client_pfd = { client_fd, POLLIN, 0 };
 	fds.push_back(client_pfd);
+	std::cout << "[ACCEPT] Nouveau client fd=" << client_fd 
+		<< " depuis server_fd=" << server_fd << std::endl;
 }
 
 bool Server::handle_client_data(std::vector<struct pollfd>& fds, size_t i)
@@ -106,23 +106,27 @@ bool Server::handle_client_data(std::vector<struct pollfd>& fds, size_t i)
 		return false;
 	}
 	else if (bytes_read < 0)
+	{
+		std::cout << "[RECV] fd=" << fds[i].fd << " recv error, errno=" << errno << std::endl;
 		return true;
+	}
 
 	client_buffers[fds[i].fd].append(buffer, bytes_read);
 	std::string& full_request = client_buffers[fds[i].fd];
 
-
 	size_t header_end = full_request.find("\r\n\r\n");
 	if (header_end == std::string::npos)
+	{
+		std::cout << "[WAIT] fd=" << fds[i].fd << " headers incomplets, buffer_size=" 
+		<< full_request.size() << std::endl;
 		return true;
-
+	}
 
 	std::string method;
 	size_t method_end = full_request.find(' ');
 	if (method_end != std::string::npos)
 		method = full_request.substr(0, method_end);
 
-	// vérifier Content-Length
 	size_t content_length = 0;
 	size_t cl_pos = full_request.find("Content-Length:");
 	if (cl_pos != std::string::npos)
@@ -133,24 +137,41 @@ bool Server::handle_client_data(std::vector<struct pollfd>& fds, size_t i)
 		content_length = std::atoi(full_request.c_str() + cl_pos);
 	}
 
-	if (method == "GET")
-		content_length = 0;
+	size_t total_needed = header_end + 4;
+	if (method != "GET")
+		total_needed += content_length;
 
-	size_t total_needed = header_end + 4 + content_length;
 	if (full_request.size() < total_needed)
+	{
+		std::cout << "[WAIT] fd=" << fds[i].fd << " body incomplet, recu=" 
+		<< full_request.size() << " attendu=" << total_needed << std::endl;
 		return true;
+	}
 
 	Server* server = client_to_server[fds[i].fd];
 	Request request;
 	request.parse(full_request, *server);
-	request.printAllToTest();
+	// request.printAllToTest();
 
 	Reponse rep;
 	std::string response = rep.handleRequest(request, *server);
 
-	send(fds[i].fd, response.c_str(), response.size(), 0);
+	std::cout << "[READ] fd=" << fds[i].fd 
+	<< " bytes_read=" << bytes_read 
+	<< " buffer_size=" << client_buffers[fds[i].fd].size() 
+	<< std::endl;
 
-	// nettoyage
+	std::cout << "[DEBUG RESPONSE] to fd=" << fds[i].fd << ":\n"
+	<< response.c_str() << "\n--- END RESPONSE ---\n";
+
+	int sent = send(fds[i].fd, response.c_str(), response.size(), 0);
+	if (sent <= 0)
+		return (true);
+
+	std::cout << "[WRITE] fd=" << fds[i].fd << " bytes_sent=" << sent << std::endl;
+
+	std::cout << "[CLOSE] fd=" << fds[i].fd << " fermé" << std::endl;
+
 	close(fds[i].fd);
 	client_to_server.erase(fds[i].fd);
 	client_buffers.erase(fds[i].fd);
@@ -179,6 +200,8 @@ void Server::runPollLoop(std::vector<Server*>& servers)
 		int poll_count = poll(fds.data(), fds.size(), 5000);
 		if (poll_count == -1)
 		{
+			if (!g_running)
+				break;
 			std::cout << "Error: poll()" << std::endl;
 			break;
 		}
@@ -186,6 +209,8 @@ void Server::runPollLoop(std::vector<Server*>& servers)
 		{
 			if (fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
 			{
+				std::cout << "[ERROR] fd=" << fds[i].fd 
+				<< " events=" << fds[i].revents << " -> fermeture" << std::endl;
 				if (!is_server_socket(fds[i].fd, servers))
 				{
 					close(fds[i].fd);

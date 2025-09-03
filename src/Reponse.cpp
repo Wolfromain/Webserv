@@ -279,6 +279,7 @@ std::string	Reponse::handleRequest(const Request &req, const Server &server)
 		this->handleDELETE(req, true_path);
 	else
 		errorHandler(501);
+
 	std::ostringstream oss;
 	oss << _body.size();
 	_headers["Content-Length"] = oss.str();
@@ -303,7 +304,6 @@ const Location *Reponse::matchLocation(const Server &server, const std::string &
 	for (size_t i = 0; i < server.locations.size(); i++)
 	{
 		const Location &loc = server.locations[i];
-		// Vérifie si le path correspond exactement ou commence par le location path
 		if (path == loc.path || 
 			(path.find(loc.path) == 0 && ((loc.path.length() > 0 && loc.path[loc.path.length() - 1] == '/') || path[loc.path.length()] == '/')))
 		{
@@ -350,9 +350,8 @@ std::string Reponse::findTruePath(const Server &server, const Location *location
 bool Reponse::isMethodAllowed(const Location *location, const std::string &method)
 {
 	if (!location || location->allow_methods.empty())
-		return (true);  // Change false en true ici
+		return (true);
 
-	// Vérifie si la méthode est dans la liste des méthodes autorisées
 	std::vector<std::string>::const_iterator it = location->allow_methods.begin();
 	while (it != location->allow_methods.end())
 	{
@@ -426,6 +425,16 @@ void Reponse::errorHandler(int error)
 		if (_body.empty())
 			_body = "<h1> 501 Method not implemented </h1>";
 		_headers["Content-Type"] = "text/plain";
+	}
+	 else if (error == 403)
+	{
+		_statusCode = 403;
+		_statusComment = "Forbidden";
+		_body = readFile("var/www/error/403.html");
+		if (_body.empty())
+			_body = "<h1> 403 Forbidden </h1>";
+		_headers["Content-Type"] = "text/plain";
+		return;
 	}
 }
 

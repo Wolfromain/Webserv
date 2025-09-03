@@ -30,7 +30,10 @@ int Config::parseConfigFile(const std::string &filename)
 		if (line.empty() || line[0] == '#')
 			continue;
 		if (line.find("server") != std::string::npos)
-			parseServerBlock(file);
+		{
+			if (parseServerBlock(file) == -1)
+					return (-1);
+		}
 	}
 	return (0);
 }
@@ -52,7 +55,18 @@ int Config::parseServerBlock(std::ifstream &file)
 			cleanValue(value);
 			int port = atoi(value.c_str());
 			if (port > 0)
+			{
+				for (size_t i = 0; i < _servers.size(); i++)
+				{
+					const std::vector<int>& ports = _servers[i].getPorts();
+					if (std::find(ports.begin(), ports.end(), port) != ports.end())
+					{
+						std::cerr << "Error: Port " << port << " already in use in config file." << std::endl;
+						return (-1);
+					}
+				}
 				server.addPort(port);
+			}
 		}
 
 		else if (line.find("server_name") != std::string::npos)
@@ -153,10 +167,8 @@ void Config::parseLocationBlock(std::ifstream &file, Server &server, const std::
 			std::istringstream iss(line);
 			std::string keyword;
 			iss >> keyword;
-			
 			iss >> locations.redirectCode >> locations.redirectPath;
-			
-			// Nettoie le point-virgule
+
 			if (!locations.redirectPath.empty() && locations.redirectPath[locations.redirectPath.length()-1] == ';')
 				locations.redirectPath.erase(locations.redirectPath.length()-1);
 				
@@ -170,7 +182,7 @@ void Config::cleanValue(std::string &value)
 {
 	while (!value.empty() && (value[0] == ' ' || value[0] == '\t'))
 		value = value.substr(1);
-		
+
 	while (!value.empty() && (value[value.length()-1] == ' ' || 
 			value[value.length()-1] == '\t' || 
 			value[value.length()-1] == ';' ||
