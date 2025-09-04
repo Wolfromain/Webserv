@@ -88,8 +88,8 @@ void Server::handle_new_connection(std::vector<struct pollfd>& fds, int server_f
 
 	struct pollfd client_pfd = { client_fd, POLLIN, 0 };
 	fds.push_back(client_pfd);
-	std::cout << "[ACCEPT] Nouveau client fd=" << client_fd 
-		<< " depuis server_fd=" << server_fd << std::endl;
+	// std::cout << "[ACCEPT] Nouveau client fd=" << client_fd 
+	// 	<< " depuis server_fd=" << server_fd << std::endl;
 }
 
 bool Server::handle_client_data(std::vector<struct pollfd>& fds, size_t i)
@@ -107,7 +107,7 @@ bool Server::handle_client_data(std::vector<struct pollfd>& fds, size_t i)
 	}
 	else if (bytes_read < 0)
 	{
-		std::cout << "[RECV] fd=" << fds[i].fd << " recv error, errno=" << errno << std::endl;
+		// std::cout << "[RECV] fd=" << fds[i].fd << " recv error, errno=" << errno << std::endl;
 		return true;
 	}
 
@@ -117,8 +117,8 @@ bool Server::handle_client_data(std::vector<struct pollfd>& fds, size_t i)
 	size_t header_end = full_request.find("\r\n\r\n");
 	if (header_end == std::string::npos)
 	{
-		std::cout << "[WAIT] fd=" << fds[i].fd << " headers incomplets, buffer_size=" 
-		<< full_request.size() << std::endl;
+		// std::cout << "[WAIT] fd=" << fds[i].fd << " headers incomplets, buffer_size=" 
+		// << full_request.size() << std::endl;
 		return true;
 	}
 
@@ -143,8 +143,8 @@ bool Server::handle_client_data(std::vector<struct pollfd>& fds, size_t i)
 
 	if (full_request.size() < total_needed)
 	{
-		std::cout << "[WAIT] fd=" << fds[i].fd << " body incomplet, recu=" 
-		<< full_request.size() << " attendu=" << total_needed << std::endl;
+		// std::cout << "[WAIT] fd=" << fds[i].fd << " body incomplet, recu=" 
+		// << full_request.size() << " attendu=" << total_needed << std::endl;
 		return true;
 	}
 
@@ -156,21 +156,21 @@ bool Server::handle_client_data(std::vector<struct pollfd>& fds, size_t i)
 	Reponse rep;
 	std::string response = rep.handleRequest(request, *server);
 
-	std::cout << "[READ] fd=" << fds[i].fd 
-	<< " bytes_read=" << bytes_read 
-	<< " buffer_size=" << client_buffers[fds[i].fd].size() 
-	<< std::endl;
+	// std::cout << "[READ] fd=" << fds[i].fd 
+	// << " bytes_read=" << bytes_read 
+	// << " buffer_size=" << client_buffers[fds[i].fd].size() 
+	// << std::endl;
 
-	std::cout << "[DEBUG RESPONSE] to fd=" << fds[i].fd << ":\n"
-	<< response.c_str() << "\n--- END RESPONSE ---\n";
+	// std::cout << "[DEBUG RESPONSE] to fd=" << fds[i].fd << ":\n"
+	// << response.c_str() << "\n--- END RESPONSE ---\n";
 
 	int sent = send(fds[i].fd, response.c_str(), response.size(), 0);
 	if (sent <= 0)
 		return (true);
 
-	std::cout << "[WRITE] fd=" << fds[i].fd << " bytes_sent=" << sent << std::endl;
+	// std::cout << "[WRITE] fd=" << fds[i].fd << " bytes_sent=" << sent << std::endl;
 
-	std::cout << "[CLOSE] fd=" << fds[i].fd << " fermé" << std::endl;
+	// std::cout << "[CLOSE] fd=" << fds[i].fd << " fermé" << std::endl;
 
 	close(fds[i].fd);
 	client_to_server.erase(fds[i].fd);
@@ -186,11 +186,11 @@ void Server::runPollLoop(std::vector<Server*>& servers)
 
 	for (size_t s = 0; s < servers.size(); s++)
 	{
-		std::cout << "Adding server FD " << servers[s]->_listen_fd << " to poll list" << std::endl;
-		std::cout << "Server name: " << servers[s]->server_name << std::endl;
-		std::cout << "Listening on ports: ";
-		for (size_t p = 0; p < servers[s]->_ports.size(); p++)
-			std::cout << servers[s]->_ports[p] << " " << std::endl;
+		// std::cout << "Adding server FD " << servers[s]->_listen_fd << " to poll list" << std::endl;
+		// std::cout << "Server name: " << servers[s]->server_name << std::endl;
+		// std::cout << "Listening on ports: ";
+		// for (size_t p = 0; p < servers[s]->_ports.size(); p++)
+		// 	std::cout << servers[s]->_ports[p] << " " << std::endl;
 		struct pollfd pfd = { servers[s]->_listen_fd, POLLIN, 0 };
 		fds.push_back(pfd);
 	}
@@ -209,8 +209,8 @@ void Server::runPollLoop(std::vector<Server*>& servers)
 		{
 			if (fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
 			{
-				std::cout << "[ERROR] fd=" << fds[i].fd 
-				<< " events=" << fds[i].revents << " -> fermeture" << std::endl;
+				// std::cout << "[ERROR] fd=" << fds[i].fd 
+				// << " events=" << fds[i].revents << " -> fermeture" << std::endl;
 				if (!is_server_socket(fds[i].fd, servers))
 				{
 					close(fds[i].fd);

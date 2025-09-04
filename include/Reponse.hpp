@@ -32,7 +32,6 @@ class Reponse
 		void		handleRedirect(const std::string& newPath);
 
 
-		//Locations
 		const Location* matchLocation(const Server &server, const std::string &path);
 		std::string findTruePath(const Server &server, const Location *location, const std::string &path);
 		bool isMethodAllowed(const Location *location, const std::string &method);

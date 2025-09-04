@@ -39,7 +39,6 @@
 		private:
 
 		int _server_fd;
-		// struct sockaddr_in _address;
 		int _listen_fd;
 		std::vector<int> _ports;
 
@@ -62,7 +61,6 @@
 			static bool handle_client_data(std::vector<struct pollfd>& fds, size_t i);
 
 			static void runPollLoop(std::vector<Server*>& servers);
-			// void start();
 			void stop();
 			bool isRunning() const;
 			int	getServerFd() const;
